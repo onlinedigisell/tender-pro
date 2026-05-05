@@ -1,0 +1,2 @@
+-- This migration was replaced by the Postgres initial migration.
+-- It is intentionally empty so existing migration history stays valid.
