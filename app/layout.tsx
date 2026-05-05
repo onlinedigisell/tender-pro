@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import NotificationSetup from "./components/NotificationSetup";
 
 export const metadata: Metadata = {
   title: "Tender Pro",
@@ -64,6 +65,7 @@ export default function RootLayout({
             </header>
 
             {children}
+            <NotificationSetup />
           </div>
         </div>
       </body>

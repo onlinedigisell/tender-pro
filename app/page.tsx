@@ -87,6 +87,24 @@ export default async function Home() {
       </section>
 
       <section className="mt-6 grid gap-6 xl:grid-cols-2">
+        <div className="rounded-md bg-white p-5 shadow-sm xl:col-span-2">
+          <div className="grid gap-4 lg:grid-cols-[1fr_auto] lg:items-center">
+            <div>
+              <h2 className="text-lg font-bold">Mobile app and reminders</h2>
+              <p className="mt-1 text-sm text-slate-600">
+                Open this site on your phone, choose Add to Home Screen, then tap Enable notifications.
+                Tender Pro will send closing-date reminders to subscribed phones and PCs.
+              </p>
+            </div>
+            <a
+              href="/tenders"
+              className="w-fit rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold hover:bg-slate-50"
+            >
+              Add tender deadline
+            </a>
+          </div>
+        </div>
+
         <div className="rounded-md bg-white p-5 shadow-sm">
           <div className="mb-4 flex items-center justify-between">
             <h2 className="text-lg font-bold">Latest live tenders</h2>
