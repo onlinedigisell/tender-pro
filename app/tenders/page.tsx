@@ -23,6 +23,16 @@ type Tender = {
   workDoneCertificate: boolean;
   completionDate?: string | null;
   notes?: string | null;
+  bidders?: {
+    id: string;
+    bidderName: string;
+    quotedAmount?: number | null;
+    percentBelow?: number | null;
+    isWinner: boolean;
+  }[];
+  _count?: {
+    bidders: number;
+  };
 };
 
 const emptyForm = {
@@ -424,6 +434,14 @@ export default function TendersPage() {
                   <div>
                     <p className="font-semibold">{tender.title}</p>
                     <p className="mt-1 text-sm text-slate-500">{tender.location}</p>
+                    {tender._count?.bidders ? (
+                      <p className="mt-1 text-sm font-medium text-blue-700">
+                        {tender._count.bidders} bidder(s)
+                        {tender.bidders?.find((bidder) => bidder.isWinner)
+                          ? ` . Winner: ${tender.bidders.find((bidder) => bidder.isWinner)?.bidderName}`
+                          : ""}
+                      </p>
+                    ) : null}
                     {tender.value ? (
                       <p className="mt-1 text-sm text-slate-500">
                         Estimated: {Number(tender.value).toLocaleString("en-IN")}

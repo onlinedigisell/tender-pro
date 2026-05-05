@@ -29,6 +29,24 @@ model Tender {
   completionDate      DateTime?
   notes               String?
   createdAt           DateTime  @default(now())
+  bidders             Bidder[]
+}
+
+model Bidder {
+  id            String   @id @default(uuid())
+  tenderId      String
+  tender        Tender   @relation(fields: [tenderId], references: [id], onDelete: Cascade)
+  bidderName    String
+  contactPerson String?
+  phone         String?
+  quotedAmount  Float?
+  percentBelow  Float?
+  rank          Int?
+  isWinner      Boolean  @default(false)
+  remarks       String?
+  createdAt     DateTime @default(now())
+
+  @@index([tenderId])
 }
 
 model Activity {

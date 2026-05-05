@@ -4,6 +4,14 @@ import { tenderPayload } from "../../../lib/tenderData";
 export async function GET() {
   const tenders = await prisma.tender.findMany({
     orderBy: { createdAt: "desc" },
+    include: {
+      bidders: {
+        orderBy: [{ isWinner: "desc" }, { rank: "asc" }, { quotedAmount: "asc" }],
+      },
+      _count: {
+        select: { bidders: true },
+      },
+    },
   });
 
   return Response.json(tenders);
