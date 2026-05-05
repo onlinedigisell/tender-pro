@@ -45,54 +45,54 @@ export default async function Home() {
   const today = indiaDateAsUtcMidnight();
   const sevenDaysLater = indiaDateAsUtcMidnight(7);
 
-  const [
-    openTenders,
-    closingSoon,
-    submittedTenders,
-    activitiesToday,
-    closingSoonTenders,
-    liveTenders,
-    notifications,
-  ] = await Promise.all([
-    prisma.tender.count({
-      where: {
-        status: { in: ["OPEN", "IN_PROGRESS", "SUBMITTED"] },
-        resultStatus: { not: "WON" },
+  const activeTenderWhere = {
+    status: { in: ["OPEN", "IN_PROGRESS", "SUBMITTED"] },
+  };
+
+  const openTenders = await prisma.tender.count({
+    where: {
+      ...activeTenderWhere,
+      resultStatus: { not: "WON" },
+    },
+  });
+
+  const closingSoon = await prisma.tender.count({
+    where: {
+      ...activeTenderWhere,
+      endDate: { gte: today, lte: sevenDaysLater },
+    },
+  });
+
+  const submittedTenders = await prisma.tender.count({ where: { status: "SUBMITTED" } });
+
+  const activitiesToday = await prisma.activity.count({
+    where: {
+      date: {
+        gte: today,
+        lt: indiaDateAsUtcMidnight(1),
       },
-    }),
-    prisma.tender.count({
-      where: {
-        status: { in: ["OPEN", "IN_PROGRESS", "SUBMITTED"] },
-        endDate: { gte: today, lte: sevenDaysLater },
-      },
-    }),
-    prisma.tender.count({ where: { status: "SUBMITTED" } }),
-    prisma.activity.count({
-      where: {
-        date: {
-          gte: today,
-          lt: indiaDateAsUtcMidnight(1),
-        },
-      },
-    }),
-    prisma.tender.findMany({
-      where: {
-        status: { in: ["OPEN", "IN_PROGRESS", "SUBMITTED"] },
-        endDate: { gte: today, lte: sevenDaysLater },
-      },
-      orderBy: { endDate: "asc" },
-      take: 12,
-    }),
-    prisma.externalTender.findMany({
-      orderBy: { fetchedAt: "desc" },
-      take: 5,
-      include: { source: { select: { name: true } } },
-    }),
-    prisma.notification.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 5,
-    }),
-  ]);
+    },
+  });
+
+  const closingSoonTenders = await prisma.tender.findMany({
+    where: {
+      ...activeTenderWhere,
+      endDate: { gte: today, lte: sevenDaysLater },
+    },
+    orderBy: { endDate: "asc" },
+    take: 12,
+  });
+
+  const liveTenders = await prisma.externalTender.findMany({
+    orderBy: { fetchedAt: "desc" },
+    take: 5,
+    include: { source: { select: { name: true } } },
+  });
+
+  const notifications = await prisma.notification.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 5,
+  });
 
   const stats = [
     { label: "Active tenders", value: openTenders, tone: "border-l-blue-600" },

@@ -14,39 +14,27 @@ function percent(value: number, total: number) {
 }
 
 export default async function ReportsPage() {
-  const [
-    tenders,
-    totalTenders,
-    bidTenders,
-    notBidTenders,
-    wonTenders,
-    completedWorks,
-    certificateReceived,
-    estimated,
-    quoted,
-    actual,
-    expenses,
-    wonAmount,
-  ] = await Promise.all([
-    prisma.tender.findMany({
-      orderBy: { endDate: "desc" },
-      take: 100,
-    }),
-    prisma.tender.count(),
-    prisma.tender.count({ where: { bidDecision: "BID" } }),
-    prisma.tender.count({ where: { bidDecision: "NOT_BID" } }),
-    prisma.tender.count({ where: { resultStatus: "WON" } }),
-    prisma.tender.count({ where: { workCompleted: true } }),
-    prisma.tender.count({ where: { workDoneCertificate: true } }),
-    prisma.tender.aggregate({ _sum: { value: true } }),
-    prisma.tender.aggregate({ _sum: { quotedRate: true } }),
-    prisma.tender.aggregate({ _sum: { actualTenderCost: true } }),
-    prisma.tender.aggregate({ _sum: { tenderExpense: true } }),
-    prisma.tender.aggregate({
-      where: { resultStatus: "WON" },
-      _sum: { actualTenderCost: true, quotedRate: true, value: true },
-    }),
-  ]);
+  const tenders = await prisma.tender.findMany({
+    orderBy: { endDate: "desc" },
+    take: 100,
+  });
+
+  const totalTenders = await prisma.tender.count();
+  const bidTenders = await prisma.tender.count({ where: { bidDecision: "BID" } });
+  const notBidTenders = await prisma.tender.count({ where: { bidDecision: "NOT_BID" } });
+  const wonTenders = await prisma.tender.count({ where: { resultStatus: "WON" } });
+  const completedWorks = await prisma.tender.count({ where: { workCompleted: true } });
+  const certificateReceived = await prisma.tender.count({
+    where: { workDoneCertificate: true },
+  });
+  const estimated = await prisma.tender.aggregate({ _sum: { value: true } });
+  const quoted = await prisma.tender.aggregate({ _sum: { quotedRate: true } });
+  const actual = await prisma.tender.aggregate({ _sum: { actualTenderCost: true } });
+  const expenses = await prisma.tender.aggregate({ _sum: { tenderExpense: true } });
+  const wonAmount = await prisma.tender.aggregate({
+    where: { resultStatus: "WON" },
+    _sum: { actualTenderCost: true, quotedRate: true, value: true },
+  });
 
   const cards = [
     { label: "Total tenders", value: totalTenders },
