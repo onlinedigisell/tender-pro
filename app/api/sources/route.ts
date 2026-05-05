@@ -1,9 +1,15 @@
-import { PrismaClient } from "@prisma/client";
-
-const prisma = new PrismaClient();
+import { prisma } from "../../../lib/prisma";
 
 export async function GET() {
-  const sources = await prisma.tenderSource.findMany();
+  const sources = await prisma.tenderSource.findMany({
+    orderBy: { createdAt: "desc" },
+    include: {
+      _count: {
+        select: { externalTenders: true },
+      },
+    },
+  });
+
   return Response.json(sources);
 }
 

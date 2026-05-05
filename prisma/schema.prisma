@@ -34,8 +34,24 @@ model Notification {
 }
 
 model TenderSource {
-  id        String   @id @default(uuid())
-  name      String
-  url       String
-  createdAt DateTime @default(now())
+  id              String           @id @default(uuid())
+  name            String
+  url             String
+  createdAt       DateTime         @default(now())
+  lastFetchedAt   DateTime?
+  externalTenders ExternalTender[]
+}
+
+model ExternalTender {
+  id        String       @id @default(uuid())
+  sourceId  String
+  source    TenderSource @relation(fields: [sourceId], references: [id], onDelete: Cascade)
+  title     String
+  link      String
+  summary   String?
+  status    String       @default("NEW")
+  fetchedAt DateTime     @default(now())
+  createdAt DateTime     @default(now())
+
+  @@unique([sourceId, link])
 }
