@@ -211,13 +211,22 @@ export default function SourcesPage() {
                             {source._count?.externalTenders ?? 0} saved tender(s)
                           </p>
                         </div>
-                        <button
-                          onClick={() => fetchLiveTenders(source.id)}
-                          disabled={isFetching}
-                          className="rounded-md border border-blue-500 px-3 py-2 text-sm font-bold text-blue-700 hover:bg-blue-50"
-                        >
-                          Fetch
-                        </button>
+                        <div className="flex shrink-0 gap-2">
+                          <a
+                            href={source.url}
+                            target="_blank"
+                            className="rounded-md border border-slate-300 px-3 py-2 text-sm font-bold text-slate-700 hover:bg-slate-50"
+                          >
+                            Open
+                          </a>
+                          <button
+                            onClick={() => fetchLiveTenders(source.id)}
+                            disabled={isFetching}
+                            className="rounded-md border border-blue-500 px-3 py-2 text-sm font-bold text-blue-700 hover:bg-blue-50"
+                          >
+                            Fetch
+                          </button>
+                        </div>
                       </div>
                     </div>
                   ))

@@ -23,6 +23,19 @@ const TENDER_WORDS = [
   "work order",
 ];
 
+const BROWSER_HEADERS = {
+  "user-agent":
+    "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0 Safari/537.36",
+  accept: "text/html,application/xhtml+xml,application/xml;q=0.9,application/json;q=0.8,*/*;q=0.7",
+  "accept-language": "en-IN,en;q=0.9",
+  "cache-control": "no-cache",
+  pragma: "no-cache",
+};
+
+function isMahaTender(source: SourceInput) {
+  return /mahatenders\.gov\.in/i.test(source.url) || /maha\s*tender/i.test(source.name);
+}
+
 function decodeHtml(value: string) {
   return value
     .replace(/&amp;/g, "&")
@@ -117,9 +130,10 @@ function parseHtmlTenderItems(html: string, sourceUrl: string): FetchedTender[] 
 export async function fetchTenderSource(source: SourceInput) {
   const response = await fetch(source.url, {
     headers: {
-      "user-agent":
-        "Mozilla/5.0 TenderPro/1.0 (+https://github.com/onlinedigisell/tender-pro)",
-      accept: "text/html,application/json",
+      ...BROWSER_HEADERS,
+      referer: isMahaTender(source)
+        ? "https://mahatenders.gov.in/nicgep/app"
+        : source.url,
     },
     cache: "no-store",
   });
@@ -130,6 +144,12 @@ export async function fetchTenderSource(source: SourceInput) {
 
   const contentType = response.headers.get("content-type") ?? "";
   const text = await response.text();
+
+  if (isMahaTender(source) && /Enter Captcha|captchaText|Provide Captcha/i.test(text)) {
+    throw new Error(
+      "MahaTender official portal requires captcha before showing active tenders. Open the source link manually, or use a paid/API source without captcha.",
+    );
+  }
 
   if (contentType.includes("application/json") || text.trim().startsWith("{")) {
     return parseJsonTenderItems(JSON.parse(text), source.url);
