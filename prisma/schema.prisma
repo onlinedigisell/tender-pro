@@ -1,0 +1,27 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"   // simpler for now
+  url      = "file:./dev.db"
+}
+
+model Tender {
+  id          String   @id @default(uuid())
+  title       String
+  department  String
+  location    String
+  value       Float?
+  startDate   DateTime
+  endDate     DateTime
+  status      String
+  createdAt   DateTime @default(now())
+}
+
+model Activity {
+  id        String   @id @default(uuid())
+  title     String
+  date      DateTime
+  status    String
+}
