@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import "./globals.css";
-import { startCron } from "../lib/cron";
 
 export const metadata: Metadata = {
   title: "Tender Pro",
@@ -12,9 +11,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  // start background cron job (runs once)
-  startCron();
-
   return (
     <html lang="en">
       <body className="bg-gray-100">
