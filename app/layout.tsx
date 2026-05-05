@@ -1,19 +1,24 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import LogoMark from "./components/LogoMark";
 import NotificationSetup from "./components/NotificationSetup";
 
 export const metadata: Metadata = {
   title: "Tender Pro",
   description: "Tender and Activity Management System",
+  icons: {
+    icon: "/app-icon.svg",
+    apple: "/app-icon.svg",
+  },
 };
 
 const navItems = [
-  { href: "/", label: "Dashboard" },
-  { href: "/tenders", label: "Tenders" },
-  { href: "/activities", label: "Activities" },
-  { href: "/sources", label: "Live Sources" },
-  { href: "/reports", label: "Reports" },
-  { href: "/notifications", label: "Alerts" },
+  { href: "/", label: "Dashboard", detail: "Overview" },
+  { href: "/tenders", label: "Tenders", detail: "Records" },
+  { href: "/reports", label: "Reports", detail: "Totals" },
+  { href: "/sources", label: "Live Sources", detail: "Fetch" },
+  { href: "/activities", label: "Activities", detail: "Daily work" },
+  { href: "/notifications", label: "Alerts", detail: "Reminders" },
 ];
 
 export default function RootLayout({
@@ -23,42 +28,69 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-slate-100 text-slate-950">
+      <body className="bg-slate-100 text-slate-950 antialiased">
         <div className="min-h-screen lg:flex">
-          <aside className="hidden w-72 border-r border-slate-200 bg-white px-5 py-6 lg:block">
-            <div className="mb-8">
-              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
-                Civil consultancy
-              </p>
-              <h1 className="mt-1 text-2xl font-bold">Tender Pro</h1>
+          <aside className="hidden w-72 border-r border-slate-200 bg-white/95 px-4 py-5 shadow-sm lg:block">
+            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+              <LogoMark />
             </div>
 
-            <nav className="grid gap-1">
+            <nav className="mt-6 grid gap-1">
               {navItems.map((item) => (
                 <a
                   key={item.href}
                   href={item.href}
-                  className="rounded-md px-3 py-2 text-sm font-medium text-slate-700 hover:bg-slate-100 hover:text-slate-950"
+                  className="group flex items-center justify-between rounded-lg px-3 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-950 hover:text-white"
                 >
-                  {item.label}
+                  <span>{item.label}</span>
+                  <span className="text-xs font-medium text-slate-400 group-hover:text-slate-200">
+                    {item.detail}
+                  </span>
                 </a>
               ))}
             </nav>
 
-            <div className="mt-10 rounded-lg border border-slate-200 bg-slate-50 p-4">
-              <p className="text-sm font-semibold">Live tender monitor</p>
-              <p className="mt-1 text-sm text-slate-600">
-                Add trusted portal URLs, fetch new tenders, and review alerts from one place.
+            <div className="mt-8 rounded-xl border border-blue-100 bg-blue-50 p-4">
+              <p className="text-sm font-bold text-blue-950">Tender control room</p>
+              <p className="mt-2 text-sm leading-5 text-blue-900">
+                Track live sources, bid decisions, quoted rates, work completion, and certificates.
               </p>
             </div>
           </aside>
 
           <div className="min-w-0 flex-1">
-            <header className="border-b border-slate-200 bg-white px-4 py-4 lg:hidden">
-              <h1 className="font-bold">Tender Pro</h1>
-              <nav className="mt-3 flex gap-4 overflow-x-auto text-sm">
+            <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 px-4 py-3 shadow-sm backdrop-blur lg:px-6">
+              <div className="flex items-center justify-between gap-4">
+                <div className="lg:hidden">
+                  <LogoMark compact />
+                </div>
+                <div className="hidden lg:block">
+                  <p className="text-sm font-semibold text-slate-500">Business dashboard</p>
+                  <p className="text-lg font-bold tracking-tight">Tender Pro Workspace</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <a
+                    href="/tenders"
+                    className="rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-800"
+                  >
+                    Add Tender
+                  </a>
+                  <a
+                    href="/reports"
+                    className="hidden rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold hover:bg-slate-50 sm:inline-flex"
+                  >
+                    Reports
+                  </a>
+                </div>
+              </div>
+
+              <nav className="mt-3 flex gap-2 overflow-x-auto pb-1 text-sm lg:hidden">
                 {navItems.map((item) => (
-                  <a key={item.href} href={item.href} className="whitespace-nowrap text-slate-700">
+                  <a
+                    key={item.href}
+                    href={item.href}
+                    className="whitespace-nowrap rounded-md border border-slate-200 bg-white px-3 py-2 font-medium text-slate-700 shadow-sm"
+                  >
                     {item.label}
                   </a>
                 ))}

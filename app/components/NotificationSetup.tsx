@@ -78,7 +78,7 @@ export default function NotificationSetup() {
   if (!supported || hidden) return null;
 
   return (
-    <div className="fixed bottom-4 right-4 z-50 max-w-sm rounded-md border border-slate-200 bg-white p-4 shadow-lg">
+    <div className="fixed bottom-4 right-4 z-50 max-w-sm rounded-xl border border-slate-200 bg-white p-4 shadow-xl">
       <div className="flex items-start justify-between gap-3">
         <p className="text-sm font-bold">Tender reminders</p>
         <button
@@ -96,7 +96,7 @@ export default function NotificationSetup() {
       <div className="mt-3 flex items-center gap-2">
         <button
           onClick={enableNotifications}
-          className="rounded-md bg-blue-700 px-3 py-2 text-sm font-semibold text-white hover:bg-blue-800"
+          className="rounded-md bg-slate-950 px-3 py-2 text-sm font-semibold text-white hover:bg-slate-800"
         >
           {permission === "granted" ? "Test notifications" : "Enable notifications"}
         </button>
