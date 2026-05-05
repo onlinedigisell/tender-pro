@@ -1,7 +1,7 @@
 export default function LogoMark({ compact = false }: { compact?: boolean }) {
   return (
     <div className="flex items-center gap-3">
-      <div className="grid h-11 w-11 place-items-center rounded-lg bg-slate-950 text-sm font-black tracking-tight text-white shadow-sm">
+      <div className="grid h-11 w-11 place-items-center rounded-lg bg-gradient-to-br from-teal-400 to-blue-600 text-sm font-black tracking-tight text-white shadow-sm">
         TP
       </div>
       {!compact && (

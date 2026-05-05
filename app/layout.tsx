@@ -28,10 +28,10 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className="bg-slate-100 text-slate-950 antialiased">
+      <body className="bg-[#f3f6fb] text-slate-950 antialiased">
         <div className="min-h-screen lg:flex">
-          <aside className="hidden w-72 border-r border-slate-200 bg-white/95 px-4 py-5 shadow-sm lg:block">
-            <div className="rounded-xl border border-slate-200 bg-slate-50 p-4">
+          <aside className="hidden w-72 border-r border-slate-200 bg-white px-4 py-5 shadow-sm lg:block">
+            <div className="rounded-xl border border-cyan-100 bg-gradient-to-r from-cyan-50 to-blue-50 p-4">
               <LogoMark />
             </div>
 
@@ -40,7 +40,7 @@ export default function RootLayout({
                 <a
                   key={item.href}
                   href={item.href}
-                  className="group flex items-center justify-between rounded-lg px-3 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-950 hover:text-white"
+                  className="group flex items-center justify-between rounded-lg px-3 py-3 text-sm font-semibold text-slate-700 transition hover:bg-blue-600 hover:text-white"
                 >
                   <span>{item.label}</span>
                   <span className="text-xs font-medium text-slate-400 group-hover:text-slate-200">
@@ -59,37 +59,39 @@ export default function RootLayout({
           </aside>
 
           <div className="min-w-0 flex-1">
-            <header className="sticky top-0 z-40 border-b border-slate-200 bg-white/90 px-4 py-3 shadow-sm backdrop-blur lg:px-6">
-              <div className="flex items-center justify-between gap-4">
+            <header className="sticky top-0 z-40 border-b border-blue-200 bg-white shadow-sm">
+              <div className="bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-600 px-4 py-3 text-white lg:px-6">
+                <div className="flex items-center justify-between gap-4">
                 <div className="lg:hidden">
                   <LogoMark compact />
                 </div>
                 <div className="hidden lg:block">
-                  <p className="text-sm font-semibold text-slate-500">Business dashboard</p>
+                  <p className="text-sm font-semibold text-cyan-50">Business dashboard</p>
                   <p className="text-lg font-bold tracking-tight">Tender Pro Workspace</p>
                 </div>
                 <div className="flex items-center gap-3">
                   <a
                     href="/tenders"
-                    className="rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-slate-800"
+                    className="rounded-md bg-white px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:bg-blue-50"
                   >
                     Add Tender
                   </a>
                   <a
                     href="/reports"
-                    className="hidden rounded-md border border-slate-300 px-4 py-2 text-sm font-semibold hover:bg-slate-50 sm:inline-flex"
+                    className="hidden rounded-md border border-white/60 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10 sm:inline-flex"
                   >
                     Reports
                   </a>
                 </div>
+                </div>
               </div>
 
-              <nav className="mt-3 flex gap-2 overflow-x-auto pb-1 text-sm lg:hidden">
+              <nav className="flex gap-2 overflow-x-auto px-4 py-3 text-sm lg:px-6">
                 {navItems.map((item) => (
                   <a
                     key={item.href}
                     href={item.href}
-                    className="whitespace-nowrap rounded-md border border-slate-200 bg-white px-3 py-2 font-medium text-slate-700 shadow-sm"
+                    className="whitespace-nowrap rounded-md border border-blue-100 bg-white px-3 py-2 font-semibold text-blue-700 shadow-sm hover:border-blue-400"
                   >
                     {item.label}
                   </a>
