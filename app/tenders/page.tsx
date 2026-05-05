@@ -13,6 +13,16 @@ type Tender = {
   status: string;
 };
 
+const emptyForm = {
+  title: "",
+  department: "",
+  location: "",
+  value: "",
+  startDate: "",
+  endDate: "",
+  status: "OPEN",
+};
+
 const statusStyles: Record<string, string> = {
   OPEN: "bg-blue-50 text-blue-700",
   SUBMITTED: "bg-emerald-50 text-emerald-700",
@@ -23,15 +33,8 @@ const statusStyles: Record<string, string> = {
 export default function TendersPage() {
   const [tenders, setTenders] = useState<Tender[]>([]);
   const [query, setQuery] = useState("");
-  const [form, setForm] = useState({
-    title: "",
-    department: "",
-    location: "",
-    value: "",
-    startDate: "",
-    endDate: "",
-    status: "OPEN",
-  });
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState(emptyForm);
 
   async function loadTenders() {
     const res = await fetch("/api/tenders");
@@ -51,25 +54,55 @@ export default function TendersPage() {
     );
   }, [query, tenders]);
 
-  async function addTender(e: React.FormEvent) {
+  function toDateInput(value: string) {
+    return new Date(value).toISOString().slice(0, 10);
+  }
+
+  function resetForm() {
+    setEditingId(null);
+    setForm(emptyForm);
+  }
+
+  function editTender(tender: Tender) {
+    setEditingId(tender.id);
+    setForm({
+      title: tender.title,
+      department: tender.department,
+      location: tender.location,
+      value: tender.value ? String(tender.value) : "",
+      startDate: toDateInput(tender.startDate),
+      endDate: toDateInput(tender.endDate),
+      status: tender.status,
+    });
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  async function deleteTender(tender: Tender) {
+    const confirmed = window.confirm(`Delete tender: ${tender.title}?`);
+    if (!confirmed) return;
+
+    await fetch(`/api/tenders/${tender.id}`, {
+      method: "DELETE",
+    });
+
+    if (editingId === tender.id) {
+      resetForm();
+    }
+
+    loadTenders();
+  }
+
+  async function saveTender(e: React.FormEvent) {
     e.preventDefault();
 
-    await fetch("/api/tenders", {
-      method: "POST",
+    await fetch(editingId ? `/api/tenders/${editingId}` : "/api/tenders", {
+      method: editingId ? "PUT" : "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(form),
     });
 
-    setForm({
-      title: "",
-      department: "",
-      location: "",
-      value: "",
-      startDate: "",
-      endDate: "",
-      status: "OPEN",
-    });
-
+    resetForm();
     loadTenders();
   }
 
@@ -86,8 +119,28 @@ export default function TendersPage() {
       </div>
 
       <section className="grid gap-6 xl:grid-cols-[420px_1fr]">
-        <form onSubmit={addTender} className="h-fit rounded-md bg-white p-5 shadow-sm">
-          <h2 className="text-lg font-bold">Add new tender</h2>
+        <form onSubmit={saveTender} className="h-fit rounded-md bg-white p-5 shadow-sm">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-bold">
+                {editingId ? "Edit tender" : "Add new tender"}
+              </h2>
+              {editingId && (
+                <p className="mt-1 text-sm text-blue-700">
+                  Updating saved tender record
+                </p>
+              )}
+            </div>
+            {editingId && (
+              <button
+                type="button"
+                onClick={resetForm}
+                className="rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold hover:bg-slate-50"
+              >
+                Cancel
+              </button>
+            )}
+          </div>
           <div className="mt-5 grid gap-4">
             <input
               className="rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-blue-600"
@@ -156,7 +209,7 @@ export default function TendersPage() {
             </select>
 
             <button className="rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">
-              Save tender
+              {editingId ? "Update tender" : "Save tender"}
             </button>
           </div>
         </form>
@@ -176,12 +229,13 @@ export default function TendersPage() {
           </div>
 
           <div className="overflow-hidden rounded-md border border-slate-200">
-            <div className="hidden grid-cols-[1.5fr_1fr_1fr_120px_120px] gap-4 bg-slate-50 px-4 py-3 text-xs font-bold uppercase tracking-wide text-slate-500 lg:grid">
+            <div className="hidden grid-cols-[1.4fr_1fr_1fr_110px_110px_150px] gap-4 bg-slate-50 px-4 py-3 text-xs font-bold uppercase tracking-wide text-slate-500 lg:grid">
               <span>Tender</span>
               <span>Department</span>
               <span>Location</span>
               <span>Status</span>
               <span>Closing</span>
+              <span>Actions</span>
             </div>
 
             {filteredTenders.length === 0 ? (
@@ -190,7 +244,7 @@ export default function TendersPage() {
               filteredTenders.map((tender) => (
                 <div
                   key={tender.id}
-                  className="grid gap-2 border-t border-slate-200 px-4 py-4 lg:grid-cols-[1.5fr_1fr_1fr_120px_120px] lg:gap-4"
+                  className="grid gap-2 border-t border-slate-200 px-4 py-4 lg:grid-cols-[1.4fr_1fr_1fr_110px_110px_150px] lg:items-center lg:gap-4"
                 >
                   <div>
                     <p className="font-semibold">{tender.title}</p>
@@ -208,6 +262,22 @@ export default function TendersPage() {
                   <p className="text-sm font-medium">
                     {new Date(tender.endDate).toLocaleDateString("en-IN")}
                   </p>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => editTender(tender)}
+                      className="rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold hover:bg-slate-50"
+                    >
+                      Edit
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => deleteTender(tender)}
+                      className="rounded-md border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-50"
+                    >
+                      Delete
+                    </button>
+                  </div>
                 </div>
               ))
             )}
