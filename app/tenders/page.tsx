@@ -30,6 +30,27 @@ const statusStyles: Record<string, string> = {
   LOST: "bg-rose-50 text-rose-700",
 };
 
+function startOfLocalDay(date: Date) {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+}
+
+function getDaysRemaining(endDate: string) {
+  const today = startOfLocalDay(new Date());
+  const closing = startOfLocalDay(new Date(endDate));
+  const diff = closing.getTime() - today.getTime();
+  return Math.round(diff / 86400000);
+}
+
+function getDeadlineLabel(endDate: string) {
+  const days = getDaysRemaining(endDate);
+
+  if (days < 0) return { text: "Overdue", className: "bg-rose-50 text-rose-700" };
+  if (days === 0) return { text: "Closes today", className: "bg-amber-50 text-amber-700" };
+  if (days === 1) return { text: "1 day left", className: "bg-amber-50 text-amber-700" };
+  if (days <= 7) return { text: `${days} days left`, className: "bg-amber-50 text-amber-700" };
+  return { text: `${days} days left`, className: "bg-slate-100 text-slate-700" };
+}
+
 export default function TendersPage() {
   const [tenders, setTenders] = useState<Tender[]>([]);
   const [query, setQuery] = useState("");
@@ -229,12 +250,13 @@ export default function TendersPage() {
           </div>
 
           <div className="overflow-hidden rounded-md border border-slate-200">
-            <div className="hidden grid-cols-[1.4fr_1fr_1fr_110px_110px_150px] gap-4 bg-slate-50 px-4 py-3 text-xs font-bold uppercase tracking-wide text-slate-500 lg:grid">
+            <div className="hidden grid-cols-[1.3fr_0.9fr_0.9fr_100px_100px_120px_150px] gap-4 bg-slate-50 px-4 py-3 text-xs font-bold uppercase tracking-wide text-slate-500 lg:grid">
               <span>Tender</span>
               <span>Department</span>
               <span>Location</span>
               <span>Status</span>
               <span>Closing</span>
+              <span>Remaining</span>
               <span>Actions</span>
             </div>
 
@@ -244,7 +266,7 @@ export default function TendersPage() {
               filteredTenders.map((tender) => (
                 <div
                   key={tender.id}
-                  className="grid gap-2 border-t border-slate-200 px-4 py-4 lg:grid-cols-[1.4fr_1fr_1fr_110px_110px_150px] lg:items-center lg:gap-4"
+                  className="grid gap-2 border-t border-slate-200 px-4 py-4 lg:grid-cols-[1.3fr_0.9fr_0.9fr_100px_100px_120px_150px] lg:items-center lg:gap-4"
                 >
                   <div>
                     <p className="font-semibold">{tender.title}</p>
@@ -262,6 +284,11 @@ export default function TendersPage() {
                   <p className="text-sm font-medium">
                     {new Date(tender.endDate).toLocaleDateString("en-IN")}
                   </p>
+                  <span
+                    className={`w-fit rounded-md px-2 py-1 text-xs font-bold ${getDeadlineLabel(tender.endDate).className}`}
+                  >
+                    {getDeadlineLabel(tender.endDate).text}
+                  </span>
                   <div className="flex gap-2">
                     <button
                       type="button"

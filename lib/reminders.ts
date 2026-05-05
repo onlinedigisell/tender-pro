@@ -1,10 +1,25 @@
 import { prisma } from "./prisma";
 import { sendPushNotification } from "./push";
 
+function indiaDateAsUtcMidnight(offsetDays = 0) {
+  const parts = new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Asia/Kolkata",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).formatToParts(new Date());
+
+  const year = Number(parts.find((part) => part.type === "year")?.value);
+  const month = Number(parts.find((part) => part.type === "month")?.value);
+  const day = Number(parts.find((part) => part.type === "day")?.value);
+  const date = new Date(Date.UTC(year, month - 1, day));
+  date.setUTCDate(date.getUTCDate() + offsetDays);
+  return date;
+}
+
 export async function runTenderReminderCheck() {
-  const today = new Date();
-  const sevenDaysLater = new Date();
-  sevenDaysLater.setDate(today.getDate() + 7);
+  const today = indiaDateAsUtcMidnight();
+  const sevenDaysLater = indiaDateAsUtcMidnight(7);
 
   const tenders = await prisma.tender.findMany({
     where: {
