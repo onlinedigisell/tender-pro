@@ -12,6 +12,7 @@ const navItems = [
   { href: "/tenders", label: "Tenders" },
   { href: "/activities", label: "Activities" },
   { href: "/sources", label: "Live Sources" },
+  { href: "/reports", label: "Reports" },
   { href: "/notifications", label: "Alerts" },
 ];
 

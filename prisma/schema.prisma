@@ -8,15 +8,27 @@ datasource db {
 }
 
 model Tender {
-  id          String   @id @default(uuid())
-  title       String
-  department  String
-  location    String
-  value       Float?
-  startDate   DateTime
-  endDate     DateTime
-  status      String
-  createdAt   DateTime @default(now())
+  id                  String    @id @default(uuid())
+  title               String
+  department          String
+  location            String
+  value               Float?
+  startDate           DateTime
+  endDate             DateTime
+  status              String
+  onlineLink          String?
+  bidDecision         String    @default("PENDING")
+  documentPrepared    Boolean   @default(false)
+  bidSubmitted        Boolean   @default(false)
+  quotedRate          Float?
+  actualTenderCost    Float?
+  tenderExpense       Float?
+  resultStatus        String    @default("PENDING")
+  workCompleted       Boolean   @default(false)
+  workDoneCertificate Boolean   @default(false)
+  completionDate      DateTime?
+  notes               String?
+  createdAt           DateTime  @default(now())
 }
 
 model Activity {

@@ -1,4 +1,5 @@
 import { prisma } from "../../../../lib/prisma";
+import { tenderPayload } from "../../../../lib/tenderData";
 
 type Params = {
   params: Promise<{
@@ -12,15 +13,7 @@ export async function PUT(req: Request, { params }: Params) {
 
   const tender = await prisma.tender.update({
     where: { id },
-    data: {
-      title: body.title,
-      department: body.department,
-      location: body.location,
-      value: body.value ? Number(body.value) : null,
-      startDate: new Date(body.startDate),
-      endDate: new Date(body.endDate),
-      status: body.status || "OPEN",
-    },
+    data: tenderPayload(body),
   });
 
   return Response.json(tender);

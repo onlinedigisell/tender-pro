@@ -11,6 +11,18 @@ type Tender = {
   startDate: string;
   endDate: string;
   status: string;
+  onlineLink?: string | null;
+  bidDecision: string;
+  documentPrepared: boolean;
+  bidSubmitted: boolean;
+  quotedRate?: number | null;
+  actualTenderCost?: number | null;
+  tenderExpense?: number | null;
+  resultStatus: string;
+  workCompleted: boolean;
+  workDoneCertificate: boolean;
+  completionDate?: string | null;
+  notes?: string | null;
 };
 
 const emptyForm = {
@@ -21,6 +33,18 @@ const emptyForm = {
   startDate: "",
   endDate: "",
   status: "OPEN",
+  onlineLink: "",
+  bidDecision: "PENDING",
+  documentPrepared: false,
+  bidSubmitted: false,
+  quotedRate: "",
+  actualTenderCost: "",
+  tenderExpense: "",
+  resultStatus: "PENDING",
+  workCompleted: false,
+  workDoneCertificate: false,
+  completionDate: "",
+  notes: "",
 };
 
 const statusStyles: Record<string, string> = {
@@ -28,6 +52,12 @@ const statusStyles: Record<string, string> = {
   SUBMITTED: "bg-emerald-50 text-emerald-700",
   WON: "bg-green-50 text-green-700",
   LOST: "bg-rose-50 text-rose-700",
+};
+
+const bidStyles: Record<string, string> = {
+  PENDING: "bg-slate-100 text-slate-700",
+  BID: "bg-emerald-50 text-emerald-700",
+  NOT_BID: "bg-rose-50 text-rose-700",
 };
 
 function startOfLocalDay(date: Date) {
@@ -94,6 +124,18 @@ export default function TendersPage() {
       startDate: toDateInput(tender.startDate),
       endDate: toDateInput(tender.endDate),
       status: tender.status,
+      onlineLink: tender.onlineLink ?? "",
+      bidDecision: tender.bidDecision ?? "PENDING",
+      documentPrepared: Boolean(tender.documentPrepared),
+      bidSubmitted: Boolean(tender.bidSubmitted),
+      quotedRate: tender.quotedRate ? String(tender.quotedRate) : "",
+      actualTenderCost: tender.actualTenderCost ? String(tender.actualTenderCost) : "",
+      tenderExpense: tender.tenderExpense ? String(tender.tenderExpense) : "",
+      resultStatus: tender.resultStatus ?? "PENDING",
+      workCompleted: Boolean(tender.workCompleted),
+      workDoneCertificate: Boolean(tender.workDoneCertificate),
+      completionDate: tender.completionDate ? toDateInput(tender.completionDate) : "",
+      notes: tender.notes ?? "",
     });
 
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -227,7 +269,117 @@ export default function TendersPage() {
               <option value="SUBMITTED">SUBMITTED</option>
               <option value="WON">WON</option>
               <option value="LOST">LOST</option>
+              <option value="COMPLETED">COMPLETED</option>
             </select>
+
+            <input
+              className="rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-blue-600"
+              placeholder="Online tender link"
+              value={form.onlineLink}
+              onChange={(e) => setForm({ ...form, onlineLink: e.target.value })}
+            />
+
+            <div className="grid gap-4 sm:grid-cols-2">
+              <label className="grid gap-1 text-sm font-medium text-slate-700">
+                Bid decision
+                <select
+                  className="rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-blue-600"
+                  value={form.bidDecision}
+                  onChange={(e) => setForm({ ...form, bidDecision: e.target.value })}
+                >
+                  <option value="PENDING">Pending</option>
+                  <option value="BID">We bid</option>
+                  <option value="NOT_BID">Not bid</option>
+                </select>
+              </label>
+
+              <label className="grid gap-1 text-sm font-medium text-slate-700">
+                Result
+                <select
+                  className="rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-blue-600"
+                  value={form.resultStatus}
+                  onChange={(e) => setForm({ ...form, resultStatus: e.target.value })}
+                >
+                  <option value="PENDING">Pending</option>
+                  <option value="WON">Won</option>
+                  <option value="LOST">Lost</option>
+                  <option value="CANCELLED">Cancelled</option>
+                </select>
+              </label>
+            </div>
+
+            <div className="grid gap-4 sm:grid-cols-3">
+              <input
+                className="rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-blue-600"
+                placeholder="Quoted rate"
+                value={form.quotedRate}
+                onChange={(e) => setForm({ ...form, quotedRate: e.target.value })}
+              />
+              <input
+                className="rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-blue-600"
+                placeholder="Actual tendered cost"
+                value={form.actualTenderCost}
+                onChange={(e) => setForm({ ...form, actualTenderCost: e.target.value })}
+              />
+              <input
+                className="rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-blue-600"
+                placeholder="Tender expense"
+                value={form.tenderExpense}
+                onChange={(e) => setForm({ ...form, tenderExpense: e.target.value })}
+              />
+            </div>
+
+            <div className="grid gap-3 rounded-md border border-slate-200 bg-slate-50 p-3">
+              <label className="flex items-center gap-2 text-sm font-medium">
+                <input
+                  type="checkbox"
+                  checked={form.documentPrepared}
+                  onChange={(e) => setForm({ ...form, documentPrepared: e.target.checked })}
+                />
+                Documents prepared
+              </label>
+              <label className="flex items-center gap-2 text-sm font-medium">
+                <input
+                  type="checkbox"
+                  checked={form.bidSubmitted}
+                  onChange={(e) => setForm({ ...form, bidSubmitted: e.target.checked })}
+                />
+                Bid submitted
+              </label>
+              <label className="flex items-center gap-2 text-sm font-medium">
+                <input
+                  type="checkbox"
+                  checked={form.workCompleted}
+                  onChange={(e) => setForm({ ...form, workCompleted: e.target.checked })}
+                />
+                Work completed
+              </label>
+              <label className="flex items-center gap-2 text-sm font-medium">
+                <input
+                  type="checkbox"
+                  checked={form.workDoneCertificate}
+                  onChange={(e) => setForm({ ...form, workDoneCertificate: e.target.checked })}
+                />
+                Work done certificate received
+              </label>
+            </div>
+
+            <label className="grid gap-1 text-sm font-medium text-slate-700">
+              Completion date
+              <input
+                className="rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-blue-600"
+                type="date"
+                value={form.completionDate}
+                onChange={(e) => setForm({ ...form, completionDate: e.target.value })}
+              />
+            </label>
+
+            <textarea
+              className="min-h-24 rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-blue-600"
+              placeholder="Important notes, eligibility, document remarks, reason for not bidding..."
+              value={form.notes}
+              onChange={(e) => setForm({ ...form, notes: e.target.value })}
+            />
 
             <button className="rounded-md bg-slate-950 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-800">
               {editingId ? "Update tender" : "Save tender"}
@@ -250,11 +402,12 @@ export default function TendersPage() {
           </div>
 
           <div className="overflow-hidden rounded-md border border-slate-200">
-            <div className="hidden grid-cols-[1.3fr_0.9fr_0.9fr_100px_100px_120px_150px] gap-4 bg-slate-50 px-4 py-3 text-xs font-bold uppercase tracking-wide text-slate-500 lg:grid">
+            <div className="hidden grid-cols-[1.4fr_0.9fr_90px_90px_110px_120px_150px] gap-4 bg-slate-50 px-4 py-3 text-xs font-bold uppercase tracking-wide text-slate-500 lg:grid">
               <span>Tender</span>
               <span>Department</span>
-              <span>Location</span>
-              <span>Status</span>
+              <span>Bid</span>
+              <span>Docs</span>
+              <span>Quoted</span>
               <span>Closing</span>
               <span>Remaining</span>
               <span>Actions</span>
@@ -266,21 +419,27 @@ export default function TendersPage() {
               filteredTenders.map((tender) => (
                 <div
                   key={tender.id}
-                  className="grid gap-2 border-t border-slate-200 px-4 py-4 lg:grid-cols-[1.3fr_0.9fr_0.9fr_100px_100px_120px_150px] lg:items-center lg:gap-4"
+                  className="grid gap-2 border-t border-slate-200 px-4 py-4 lg:grid-cols-[1.4fr_0.9fr_90px_90px_110px_120px_150px] lg:items-center lg:gap-4"
                 >
                   <div>
                     <p className="font-semibold">{tender.title}</p>
+                    <p className="mt-1 text-sm text-slate-500">{tender.location}</p>
                     {tender.value ? (
                       <p className="mt-1 text-sm text-slate-500">
-                        Value: {Number(tender.value).toLocaleString("en-IN")}
+                        Estimated: {Number(tender.value).toLocaleString("en-IN")}
                       </p>
                     ) : null}
                   </div>
                   <p className="text-sm text-slate-700">{tender.department}</p>
-                  <p className="text-sm text-slate-700">{tender.location}</p>
-                  <span className={`w-fit rounded-md px-2 py-1 text-xs font-bold ${statusStyles[tender.status] ?? "bg-slate-100 text-slate-700"}`}>
-                    {tender.status}
+                  <span className={`w-fit rounded-md px-2 py-1 text-xs font-bold ${bidStyles[tender.bidDecision] ?? "bg-slate-100 text-slate-700"}`}>
+                    {tender.bidDecision}
                   </span>
+                  <span className={`w-fit rounded-md px-2 py-1 text-xs font-bold ${tender.documentPrepared ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
+                    {tender.documentPrepared ? "Ready" : "Pending"}
+                  </span>
+                  <p className="text-sm font-medium">
+                    {tender.quotedRate ? Number(tender.quotedRate).toLocaleString("en-IN") : "-"}
+                  </p>
                   <p className="text-sm font-medium">
                     {new Date(tender.endDate).toLocaleDateString("en-IN")}
                   </p>
