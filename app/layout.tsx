@@ -61,8 +61,8 @@ export default function RootLayout({
 
           <div className="min-w-0 flex-1">
             <header className="sticky top-0 z-40 border-b border-blue-200 bg-white shadow-sm">
-              <div className="bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-600 px-4 py-3 text-white lg:px-6">
-                <div className="flex items-center justify-between gap-4">
+              <div className="bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-600 px-3 py-3 text-white sm:px-4 lg:px-6">
+                <div className="flex flex-wrap items-center justify-between gap-3">
                 <div className="lg:hidden">
                   <LogoMark compact />
                 </div>
@@ -70,10 +70,10 @@ export default function RootLayout({
                   <p className="text-sm font-semibold text-cyan-50">Business dashboard</p>
                   <p className="text-lg font-bold tracking-tight">Tender Pro Workspace</p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                   <a
                     href="/tenders"
-                    className="rounded-md bg-white px-4 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:bg-blue-50"
+                    className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:bg-blue-50 sm:px-4"
                   >
                     Add Tender
                   </a>
@@ -87,7 +87,7 @@ export default function RootLayout({
                 </div>
               </div>
 
-              <nav className="flex gap-2 overflow-x-auto px-4 py-3 text-sm lg:px-6">
+              <nav className="flex max-w-full gap-2 overflow-x-auto px-3 py-3 text-sm sm:px-4 lg:px-6">
                 {navItems.map((item) => (
                   <a
                     key={item.href}

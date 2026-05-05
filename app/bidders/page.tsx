@@ -114,20 +114,20 @@ export default function BiddersPage() {
   }
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
+    <main className="mx-auto w-full max-w-7xl overflow-hidden px-3 py-4 sm:px-6 lg:px-8">
       <div className="mb-6">
         <p className="text-sm font-semibold uppercase tracking-wider text-blue-700">
           Competitor bid tracking
         </p>
-        <h1 className="mt-1 text-3xl font-bold tracking-tight">Bidders</h1>
+        <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">Bidders</h1>
         <p className="mt-2 max-w-3xl text-slate-600">
           Store who bid against each tender, quoted amount, percent below, winner, and remarks.
         </p>
       </div>
 
-      <section className="grid gap-6 xl:grid-cols-[420px_1fr]">
+      <section className="grid min-w-0 gap-5 xl:grid-cols-[420px_minmax(0,1fr)]">
         <form onSubmit={saveBidder} className="h-fit rounded-md bg-white p-5 shadow-sm">
-          <div className="flex items-start justify-between gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <h2 className="text-lg font-bold">{editingId ? "Edit bidder" : "Add bidder"}</h2>
               <p className="mt-1 text-sm text-slate-600">Attach bidder to one tender record.</p>
@@ -147,7 +147,7 @@ export default function BiddersPage() {
             <label className="grid gap-1 text-sm font-medium text-slate-700">
               Select tender
               <select
-                className="rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-blue-600"
+                className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-blue-600"
                 value={form.tenderId}
                 onChange={(e) => setForm({ ...form, tenderId: e.target.value })}
                 required
@@ -162,7 +162,7 @@ export default function BiddersPage() {
             </label>
 
             <input
-              className="rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-blue-600"
+              className="w-full rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-blue-600"
               placeholder="Bidder company name"
               value={form.bidderName}
               onChange={(e) => setForm({ ...form, bidderName: e.target.value })}
@@ -227,14 +227,14 @@ export default function BiddersPage() {
           </div>
         </form>
 
-        <div className="rounded-md bg-white p-5 shadow-sm">
+        <div className="min-w-0 rounded-md bg-white p-4 shadow-sm sm:p-5">
           <div className="mb-5 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div>
               <h2 className="text-lg font-bold">Bidder records</h2>
               <p className="text-sm text-slate-600">{filteredBidders.length} record(s)</p>
             </div>
             <input
-              className="rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-600"
+              className="w-full rounded-md border border-slate-300 px-3 py-2 text-sm outline-none focus:border-blue-600 sm:w-auto"
               placeholder="Search tender or bidder..."
               value={query}
               onChange={(e) => setQuery(e.target.value)}
@@ -248,20 +248,22 @@ export default function BiddersPage() {
               </p>
             ) : (
               filteredBidders.map((bidder) => (
-                <article key={bidder.id} className="rounded-md border border-slate-200 p-4">
-                  <div className="flex flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
-                    <div>
+                <article key={bidder.id} className="min-w-0 rounded-md border border-slate-200 p-4">
+                  <div className="flex min-w-0 flex-col gap-4 lg:flex-row lg:items-start lg:justify-between">
+                    <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <h3 className="font-bold">{bidder.bidderName}</h3>
+                        <h3 className="break-words font-bold">{bidder.bidderName}</h3>
                         {bidder.isWinner && (
                           <span className="rounded-md bg-emerald-50 px-2 py-1 text-xs font-bold text-emerald-700">
                             Winner
                           </span>
                         )}
                       </div>
-                      <p className="mt-1 text-sm font-medium text-blue-700">{bidder.tender.title}</p>
-                      <p className="mt-1 text-sm text-slate-600">{bidder.tender.department}</p>
-                      <div className="mt-3 grid gap-3 text-sm sm:grid-cols-4">
+                      <p className="mt-1 break-words text-sm font-medium text-blue-700">
+                        {bidder.tender.title}
+                      </p>
+                      <p className="mt-1 break-words text-sm text-slate-600">{bidder.tender.department}</p>
+                      <div className="mt-3 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
                         <div>
                           <p className="text-slate-500">Quoted</p>
                           <p className="font-semibold">{money(bidder.quotedAmount)}</p>
@@ -284,11 +286,11 @@ export default function BiddersPage() {
                         </div>
                       </div>
                       {bidder.remarks && (
-                        <p className="mt-3 text-sm text-slate-600">{bidder.remarks}</p>
+                        <p className="mt-3 break-words text-sm text-slate-600">{bidder.remarks}</p>
                       )}
                     </div>
 
-                    <div className="flex shrink-0 gap-2">
+                    <div className="flex flex-wrap gap-2 lg:shrink-0">
                       <button
                         type="button"
                         onClick={() => editBidder(bidder)}
