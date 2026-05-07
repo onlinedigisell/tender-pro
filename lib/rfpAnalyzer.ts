@@ -6,6 +6,8 @@ type AnalysisInput = {
 export type RfpAnalysisResult = {
   fileName: string;
   tenderTitle: string;
+  department: string;
+  tenderValue: string;
   summary: string;
   liveDate: string;
   openingDate: string;
@@ -19,6 +21,10 @@ export type RfpAnalysisResult = {
   emdAmount: string;
   tenderFee: string;
   similarWork: string;
+  technicalRequirements: string;
+  financialRequirements: string;
+  importantClauses: string;
+  riskyClauses: string;
   keyCriteria: string;
   rawText: string;
 };
@@ -77,6 +83,11 @@ function titleFromText(allLines: string[]) {
   return allLines.find((line) => line.length > 20 && line.length < 220)?.slice(0, 240) ?? "RFP Analysis";
 }
 
+function departmentFromText(allLines: string[]) {
+  const line = findLine(allLines, ["department", "client", "authority", "employer", "organization"]);
+  return line.slice(0, 220);
+}
+
 function evaluationMethod(text: string) {
   const value = text.toLowerCase();
   if (value.includes("qcbs") || value.includes("quality and cost")) {
@@ -108,6 +119,8 @@ export function analyzeRfp({ fileName, text }: AnalysisInput): RfpAnalysisResult
   return {
     fileName,
     tenderTitle: titleFromText(allLines),
+    department: departmentFromText(allLines),
+    tenderValue: findMoneyNear(allLines, ["estimated cost", "tender value", "project cost", "estimated value", "cost put to tender"]),
     summary: summaryFrom(allLines),
     liveDate: findDateNear(allLines, ["published date", "publication date", "start date", "download start"]),
     openingDate: findDateNear(allLines, ["opening date", "bid opening", "technical opening", "financial opening"]),
@@ -121,6 +134,10 @@ export function analyzeRfp({ fileName, text }: AnalysisInput): RfpAnalysisResult
     emdAmount: findMoneyNear(allLines, ["emd", "earnest money"]),
     tenderFee: findMoneyNear(allLines, ["tender fee", "document fee", "processing fee"]),
     similarWork: findBlock(allLines, ["similar work", "similar nature", "experience", "past experience"], 8),
+    technicalRequirements: findBlock(allLines, ["technical", "specification", "machinery", "engineer", "equipment"], 10),
+    financialRequirements: findBlock(allLines, ["turnover", "solvency", "financial", "net worth", "bank guarantee"], 10),
+    importantClauses: findBlock(allLines, ["liquidated damages", "defect liability", "security deposit", "performance guarantee", "penalty"], 10),
+    riskyClauses: findBlock(allLines, ["penalty", "blacklist", "forfeit", "termination", "delay", "risk and cost"], 10),
     keyCriteria: findBlock(allLines, ["criteria", "terms and conditions", "scope of work"], 10),
     rawText: cleaned.slice(0, 30000),
   };

@@ -1,6 +1,8 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import WorkflowTracker from "../components/WorkflowTracker";
+import { workflowStageForTender } from "../../lib/intelligence";
 
 type Tender = {
   id: string;
@@ -183,11 +185,11 @@ export default function TendersPage() {
     <main className="mx-auto max-w-7xl px-4 py-6 sm:px-6 lg:px-8">
       <div className="mb-6">
         <p className="text-sm font-semibold uppercase tracking-wider text-blue-700">
-          Bid pipeline
+          Submission Tracker
         </p>
-        <h1 className="mt-1 text-3xl font-bold tracking-tight">Tender Management</h1>
+        <h1 className="mt-1 text-3xl font-bold tracking-tight">Tender Workflow Engine</h1>
         <p className="mt-2 max-w-3xl text-slate-600">
-          Maintain your tender register, status, value, department, and closing dates.
+          Maintain tender records from source identified to RFP review, BOQ preparation, bid submission, award, and work order.
         </p>
       </div>
 
@@ -412,7 +414,7 @@ export default function TendersPage() {
           </div>
 
           <div className="overflow-hidden rounded-md border border-slate-200">
-            <div className="hidden grid-cols-[1.4fr_0.9fr_90px_90px_110px_120px_150px] gap-4 bg-slate-50 px-4 py-3 text-xs font-bold uppercase tracking-wide text-slate-500 lg:grid">
+            <div className="hidden grid-cols-[1.4fr_0.9fr_90px_90px_110px_120px_150px_120px] gap-4 bg-slate-50 px-4 py-3 text-xs font-bold uppercase tracking-wide text-slate-500 lg:grid">
               <span>Tender</span>
               <span>Department</span>
               <span>Bid</span>
@@ -429,7 +431,7 @@ export default function TendersPage() {
               filteredTenders.map((tender) => (
                 <div
                   key={tender.id}
-                  className="grid gap-2 border-t border-slate-200 px-4 py-4 lg:grid-cols-[1.4fr_0.9fr_90px_90px_110px_120px_150px] lg:items-center lg:gap-4"
+                  className="grid gap-2 border-t border-slate-200 px-4 py-4 lg:grid-cols-[1.4fr_0.9fr_90px_90px_110px_120px_150px_120px] lg:items-center lg:gap-4"
                 >
                   <div>
                     <p className="font-semibold">{tender.title}</p>
@@ -447,6 +449,9 @@ export default function TendersPage() {
                         Estimated: {Number(tender.value).toLocaleString("en-IN")}
                       </p>
                     ) : null}
+                    <div className="mt-4 lg:hidden">
+                      <WorkflowTracker currentStage={workflowStageForTender(tender)} />
+                    </div>
                   </div>
                   <p className="text-sm text-slate-700">{tender.department}</p>
                   <span className={`w-fit rounded-md px-2 py-1 text-xs font-bold ${bidStyles[tender.bidDecision] ?? "bg-slate-100 text-slate-700"}`}>
@@ -481,6 +486,9 @@ export default function TendersPage() {
                     >
                       Delete
                     </button>
+                  </div>
+                  <div className="hidden lg:col-span-8 lg:block">
+                    <WorkflowTracker currentStage={workflowStageForTender(tender)} />
                   </div>
                 </div>
               ))

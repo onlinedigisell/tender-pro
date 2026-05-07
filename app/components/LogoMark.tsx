@@ -7,7 +7,7 @@ export default function LogoMark({ compact = false }: { compact?: boolean }) {
       {!compact && (
         <div>
           <p className="text-base font-bold leading-5 tracking-tight text-slate-950">Tender Pro</p>
-          <p className="text-xs font-medium text-slate-500">Bid and work tracker</p>
+          <p className="text-xs font-medium text-slate-500">Tender intelligence platform</p>
         </div>
       )}
     </div>

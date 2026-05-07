@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { mockCompetitors } from "../../lib/intelligence";
 
 type Tender = {
   id: string;
@@ -119,11 +120,57 @@ export default function BiddersPage() {
         <p className="text-sm font-semibold uppercase tracking-wider text-blue-700">
           Competitor bid tracking
         </p>
-        <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">Bidders</h1>
+        <h1 className="mt-1 text-2xl font-bold tracking-tight sm:text-3xl">Competitor Insights</h1>
         <p className="mt-2 max-w-3xl text-slate-600">
-          Store who bid against each tender, quoted amount, percent below, winner, and remarks.
+          Track bidders, competitor aggressiveness, L1 frequency, win rate, and tender participation patterns.
         </p>
       </div>
+
+      <section className="mb-5 grid gap-4 md:grid-cols-3">
+        {mockCompetitors.map((competitor) => (
+          <article key={competitor.contractorName} className="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-base font-black text-slate-950">{competitor.contractorName}</h2>
+                <p className="mt-1 text-sm text-slate-600">{competitor.region}</p>
+              </div>
+              <span
+                className={`rounded-md px-2 py-1 text-xs font-black ${
+                  competitor.aggressivenessLevel === "High"
+                    ? "bg-rose-50 text-rose-700"
+                    : competitor.aggressivenessLevel === "Medium"
+                      ? "bg-amber-50 text-amber-700"
+                      : "bg-emerald-50 text-emerald-700"
+                }`}
+              >
+                {competitor.aggressivenessLevel}
+              </span>
+            </div>
+            <div className="mt-4 grid grid-cols-3 gap-2 text-sm">
+              <div>
+                <p className="text-slate-500">Avg bid</p>
+                <p className="font-black">{competitor.averageBidPercentage}%</p>
+              </div>
+              <div>
+                <p className="text-slate-500">Win rate</p>
+                <p className="font-black">{competitor.winRate}%</p>
+              </div>
+              <div>
+                <p className="text-slate-500">L1 freq.</p>
+                <p className="font-black">{competitor.l1Frequency}%</p>
+              </div>
+            </div>
+            <p className="mt-4 text-sm leading-5 text-slate-600">{competitor.recentTenderParticipation}</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              {competitor.departments.map((department) => (
+                <span key={department} className="rounded-md bg-blue-50 px-2 py-1 text-xs font-bold text-blue-700">
+                  {department}
+                </span>
+              ))}
+            </div>
+          </article>
+        ))}
+      </section>
 
       <section className="grid min-w-0 gap-5 xl:grid-cols-[420px_minmax(0,1fr)]">
         <form onSubmit={saveBidder} className="h-fit rounded-md bg-white p-5 shadow-sm">

@@ -53,6 +53,8 @@ model RfpAnalysis {
   id                 String   @id @default(uuid())
   fileName           String
   tenderTitle        String?
+  department         String?
+  tenderValue        String?
   summary            String?
   liveDate           String?
   openingDate        String?
@@ -66,6 +68,10 @@ model RfpAnalysis {
   emdAmount          String?
   tenderFee          String?
   similarWork        String?
+  technicalRequirements String?
+  financialRequirements String?
+  importantClauses   String?
+  riskyClauses       String?
   keyCriteria        String?
   rawText            String?
   createdAt          DateTime @default(now())

@@ -2,26 +2,17 @@ import type { Metadata } from "next";
 import "./globals.css";
 import LogoMark from "./components/LogoMark";
 import NotificationSetup from "./components/NotificationSetup";
+import { SidebarNav, TopNav } from "./components/Navigation";
 
 export const metadata: Metadata = {
   title: "Tender Pro",
-  description: "Tender and Activity Management System",
+  description:
+    "AI-powered tender intelligence and bid management platform from tender discovery to award tracking.",
   icons: {
     icon: "/app-icon.svg",
     apple: "/app-icon.svg",
   },
 };
-
-const navItems = [
-  { href: "/", label: "Dashboard", detail: "Overview" },
-  { href: "/tenders", label: "Tenders", detail: "Records" },
-  { href: "/bidders", label: "Bidders", detail: "Competitors" },
-  { href: "/rfp", label: "RFP Analyzer", detail: "PDF" },
-  { href: "/reports", label: "Reports", detail: "Totals" },
-  { href: "/sources", label: "Live Sources", detail: "Fetch" },
-  { href: "/activities", label: "Activities", detail: "Daily work" },
-  { href: "/notifications", label: "Alerts", detail: "Reminders" },
-];
 
 export default function RootLayout({
   children,
@@ -37,25 +28,12 @@ export default function RootLayout({
               <LogoMark />
             </div>
 
-            <nav className="mt-6 grid gap-1">
-              {navItems.map((item) => (
-                <a
-                  key={item.href}
-                  href={item.href}
-                  className="group flex items-center justify-between rounded-lg px-3 py-3 text-sm font-semibold text-slate-700 transition hover:bg-blue-600 hover:text-white"
-                >
-                  <span>{item.label}</span>
-                  <span className="text-xs font-medium text-slate-400 group-hover:text-slate-200">
-                    {item.detail}
-                  </span>
-                </a>
-              ))}
-            </nav>
+            <SidebarNav />
 
             <div className="mt-8 rounded-xl border border-blue-100 bg-blue-50 p-4">
               <p className="text-sm font-bold text-blue-950">Tender control room</p>
               <p className="mt-2 text-sm leading-5 text-blue-900">
-                Track live sources, bid decisions, quoted rates, work completion, and certificates.
+                From tender discovery to bid readiness, award tracking, and revenue pipeline.
               </p>
             </div>
           </aside>
@@ -68,8 +46,8 @@ export default function RootLayout({
                   <LogoMark compact />
                 </div>
                 <div className="hidden lg:block">
-                  <p className="text-sm font-semibold text-cyan-50">Business dashboard</p>
-                  <p className="text-lg font-bold tracking-tight">Tender Pro Workspace</p>
+                  <p className="text-sm font-semibold text-cyan-50">AI-powered tender intelligence</p>
+                  <p className="text-lg font-bold tracking-tight">Discovery to award tracking</p>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 sm:gap-3">
                   <a
@@ -88,17 +66,7 @@ export default function RootLayout({
                 </div>
               </div>
 
-              <nav className="flex max-w-full gap-2 overflow-x-auto px-3 py-3 text-sm sm:px-4 lg:px-6">
-                {navItems.map((item) => (
-                  <a
-                    key={item.href}
-                    href={item.href}
-                    className="whitespace-nowrap rounded-md border border-blue-100 bg-white px-3 py-2 font-semibold text-blue-700 shadow-sm hover:border-blue-400"
-                  >
-                    {item.label}
-                  </a>
-                ))}
-              </nav>
+              <TopNav />
             </header>
 
             {children}
