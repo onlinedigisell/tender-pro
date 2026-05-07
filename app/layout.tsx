@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className="bg-[#f3f6fb] text-slate-950 antialiased">
-        <div className="min-h-screen lg:flex">
+        <div className="min-h-screen min-w-0 lg:flex">
           <aside className="hidden w-72 border-r border-slate-200 bg-white px-4 py-5 shadow-sm lg:block">
             <div className="rounded-xl border border-cyan-100 bg-gradient-to-r from-cyan-50 to-blue-50 p-4">
               <LogoMark />
@@ -38,31 +38,31 @@ export default function RootLayout({
             </div>
           </aside>
 
-          <div className="min-w-0 flex-1">
+          <div className="min-w-0 flex-1 overflow-hidden lg:overflow-visible">
             <header className="sticky top-0 z-40 border-b border-blue-200 bg-white shadow-sm">
               <div className="bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-600 px-3 py-3 text-white sm:px-4 lg:px-6">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                <div className="lg:hidden">
-                  <LogoMark compact />
-                </div>
-                <div className="hidden lg:block">
-                  <p className="text-sm font-semibold text-cyan-50">AI-powered tender intelligence</p>
-                  <p className="text-lg font-bold tracking-tight">Discovery to award tracking</p>
-                </div>
-                <div className="flex flex-wrap items-center gap-2 sm:gap-3">
-                  <a
-                    href="/tenders"
-                    className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:bg-blue-50 sm:px-4"
-                  >
-                    Add Tender
-                  </a>
-                  <a
-                    href="/reports"
-                    className="hidden rounded-md border border-white/60 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10 sm:inline-flex"
-                  >
-                    Reports
-                  </a>
-                </div>
+                <div className="flex items-center justify-between gap-3">
+                  <div className="min-w-0 lg:hidden">
+                    <LogoMark compact />
+                  </div>
+                  <div className="hidden min-w-0 lg:block">
+                    <p className="text-sm font-semibold text-cyan-50">AI-powered tender intelligence</p>
+                    <p className="text-lg font-bold tracking-tight">Discovery to award tracking</p>
+                  </div>
+                  <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+                    <a
+                      href="/tenders"
+                      className="rounded-md bg-white px-3 py-2 text-sm font-semibold text-blue-700 shadow-sm hover:bg-blue-50 sm:px-4"
+                    >
+                      Add Tender
+                    </a>
+                    <a
+                      href="/reports"
+                      className="hidden rounded-md border border-white/60 px-4 py-2 text-sm font-semibold text-white hover:bg-white/10 sm:inline-flex"
+                    >
+                      Reports
+                    </a>
+                  </div>
                 </div>
               </div>
 
