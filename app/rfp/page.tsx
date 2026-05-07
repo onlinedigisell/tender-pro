@@ -93,6 +93,8 @@ export default function RfpPage() {
   const [activeId, setActiveId] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
+  const [progress, setProgress] = useState(0);
+  const [progressStage, setProgressStage] = useState("");
 
   const activeAnalysis = useMemo(
     () => analyses.find((analysis) => analysis.id === activeId) ?? analyses[0],
@@ -112,6 +114,26 @@ export default function RfpPage() {
     loadAnalyses();
   }, []);
 
+  useEffect(() => {
+    if (!busy) return;
+
+    const timer = window.setInterval(() => {
+      setProgress((current) => {
+        const next = current < 35 ? current + 7 : current < 70 ? current + 4 : current + 2;
+        const capped = Math.min(next, 92);
+
+        if (capped < 25) setProgressStage("Uploading RFP file...");
+        else if (capped < 50) setProgressStage("Reading PDF text...");
+        else if (capped < 75) setProgressStage("Finding dates, fees, EMD and criteria...");
+        else setProgressStage("Preparing and saving report...");
+
+        return capped;
+      });
+    }, 700);
+
+    return () => window.clearInterval(timer);
+  }, [busy]);
+
   async function analyzeFile(e: React.FormEvent) {
     e.preventDefault();
     if (!file) {
@@ -120,7 +142,9 @@ export default function RfpPage() {
     }
 
     setBusy(true);
-    setMessage("Reading PDF and preparing summary...");
+    setProgress(8);
+    setProgressStage("Uploading RFP file...");
+    setMessage("Analysis started. Please keep this page open.");
 
     const formData = new FormData();
     formData.append("file", file);
@@ -131,9 +155,11 @@ export default function RfpPage() {
     });
 
     const data = await response.json();
-    setBusy(false);
 
     if (!response.ok) {
+      setBusy(false);
+      setProgress(0);
+      setProgressStage("");
       setMessage(data.error || "Could not analyze this PDF.");
       return;
     }
@@ -141,6 +167,13 @@ export default function RfpPage() {
     setAnalyses((current) => [data, ...current.filter((item) => item.id !== data.id)]);
     setActiveId(data.id);
     setFile(null);
+    setProgress(100);
+    setProgressStage("Report ready.");
+    window.setTimeout(() => {
+      setBusy(false);
+      setProgress(0);
+      setProgressStage("");
+    }, 900);
     setMessage("RFP summary is ready. You can export it as PDF.");
   }
 
@@ -209,6 +242,24 @@ export default function RfpPage() {
             <p className="mt-4 rounded-md border border-blue-100 bg-blue-50 p-3 text-sm font-medium text-blue-900">
               {message}
             </p>
+          )}
+
+          {(busy || progress > 0) && (
+            <div className="mt-4 rounded-md border border-slate-200 bg-slate-50 p-4">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-bold text-slate-800">{progressStage}</p>
+                <p className="text-sm font-black text-blue-700">{progress}%</p>
+              </div>
+              <div className="mt-3 h-3 overflow-hidden rounded-full bg-slate-200">
+                <div
+                  className="h-full rounded-full bg-gradient-to-r from-teal-500 via-cyan-500 to-blue-600 transition-all duration-500"
+                  style={{ width: `${progress}%` }}
+                />
+              </div>
+              <p className="mt-2 text-xs leading-5 text-slate-600">
+                Large RFP PDFs can take longer. The report will appear here automatically when ready.
+              </p>
+            </div>
           )}
 
           <button
