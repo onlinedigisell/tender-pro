@@ -16,6 +16,7 @@ const navItems = [
   { href: "/", label: "Dashboard", detail: "Overview" },
   { href: "/tenders", label: "Tenders", detail: "Records" },
   { href: "/bidders", label: "Bidders", detail: "Competitors" },
+  { href: "/rfp", label: "RFP Analyzer", detail: "PDF" },
   { href: "/reports", label: "Reports", detail: "Totals" },
   { href: "/sources", label: "Live Sources", detail: "Fetch" },
   { href: "/activities", label: "Activities", detail: "Daily work" },

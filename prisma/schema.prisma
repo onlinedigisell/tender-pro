@@ -49,6 +49,28 @@ model Bidder {
   @@index([tenderId])
 }
 
+model RfpAnalysis {
+  id                 String   @id @default(uuid())
+  fileName           String
+  tenderTitle        String?
+  summary            String?
+  liveDate           String?
+  openingDate        String?
+  submissionDate     String?
+  lastDate           String?
+  eligibility        String?
+  evaluationMethod   String?
+  markingSystem      String?
+  requiredDocuments  String?
+  physicalSubmission String?
+  emdAmount          String?
+  tenderFee          String?
+  similarWork        String?
+  keyCriteria        String?
+  rawText            String?
+  createdAt          DateTime @default(now())
+}
+
 model Activity {
   id        String   @id @default(uuid())
   title     String
