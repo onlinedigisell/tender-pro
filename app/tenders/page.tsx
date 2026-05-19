@@ -242,6 +242,27 @@ export default function TendersPage() {
     loadTenders();
   }
 
+  async function markSubmitted(tender: Tender) {
+    await fetch(`/api/tenders/${tender.id}`, {
+      method: "PUT",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        ...tender,
+        startDate: toDateInput(tender.startDate),
+        endDate: toDateInput(tender.endDate),
+        status: "SUBMITTED",
+        bidDecision: "BID",
+        documentPrepared: true,
+        bidSubmitted: true,
+        resultStatus: tender.resultStatus || "PENDING",
+        completionDate: tender.completionDate ? toDateInput(tender.completionDate) : "",
+      }),
+    });
+
+    if (editingId === tender.id) resetForm();
+    loadTenders();
+  }
+
   async function saveTender(e: React.FormEvent) {
     e.preventDefault();
 
@@ -512,15 +533,14 @@ export default function TendersPage() {
             />
           </div>
 
-          <div className="overflow-hidden rounded-md border border-slate-200">
-            <div className="hidden grid-cols-[1.4fr_0.9fr_90px_90px_110px_120px_150px_120px] gap-4 bg-slate-50 px-4 py-3 text-xs font-bold uppercase tracking-wide text-slate-500 lg:grid">
+          <div className="overflow-x-auto rounded-md border border-slate-200">
+            <div className="hidden min-w-[980px] grid-cols-[1.4fr_0.9fr_90px_90px_110px_110px_120px] gap-4 bg-slate-50 px-4 py-3 text-xs font-bold uppercase tracking-wide text-slate-500 lg:grid">
               <span>Tender</span>
               <span>Department</span>
               <span>Bid</span>
               <span>Docs</span>
               <span>Quoted</span>
               <span>Closing</span>
-              <span>Remaining</span>
               <span>Actions</span>
             </div>
 
@@ -530,7 +550,7 @@ export default function TendersPage() {
               filteredTenders.map((tender) => (
                 <div
                   key={tender.id}
-                  className="grid gap-2 border-t border-slate-200 px-4 py-4 lg:grid-cols-[1.4fr_0.9fr_90px_90px_110px_120px_150px_120px] lg:items-center lg:gap-4"
+                  className="grid gap-2 border-t border-slate-200 px-4 py-4 lg:min-w-[980px] lg:grid-cols-[1.4fr_0.9fr_90px_90px_110px_110px_120px] lg:items-center lg:gap-4"
                 >
                   <div>
                     <p className="font-semibold">{tender.title}</p>
@@ -551,6 +571,22 @@ export default function TendersPage() {
                     <div className="mt-4 lg:hidden">
                       <WorkflowTracker currentStage={workflowStageForTender(tender)} />
                     </div>
+                    <div className="mt-4 flex flex-wrap gap-2">
+                      <button
+                        type="button"
+                        onClick={() => editTender(tender)}
+                        className="rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold hover:bg-slate-50"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => markSubmitted(tender)}
+                        className="rounded-md bg-emerald-600 px-3 py-2 text-sm font-bold text-white hover:bg-emerald-700"
+                      >
+                        Mark submitted
+                      </button>
+                    </div>
                   </div>
                   <p className="text-sm text-slate-700">{tender.department}</p>
                   <span className={`w-fit rounded-md px-2 py-1 text-xs font-bold ${bidStyles[tender.bidDecision] ?? "bg-slate-100 text-slate-700"}`}>
@@ -565,12 +601,7 @@ export default function TendersPage() {
                   <p className="text-sm font-medium">
                     {new Date(tender.endDate).toLocaleDateString("en-IN")}
                   </p>
-                  <span
-                    className={`w-fit rounded-md px-2 py-1 text-xs font-bold ${getDeadlineLabel(tender.endDate).className}`}
-                  >
-                    {getDeadlineLabel(tender.endDate).text}
-                  </span>
-                  <div className="flex gap-2">
+                  <div className="hidden gap-2 lg:flex">
                     <button
                       type="button"
                       onClick={() => editTender(tender)}
@@ -586,7 +617,23 @@ export default function TendersPage() {
                       Delete
                     </button>
                   </div>
-                  <div className="hidden lg:col-span-8 lg:block">
+                  <div className="hidden lg:col-span-7 lg:block">
+                    <div className="mb-2 flex items-center justify-between gap-3">
+                      <span
+                        className={`w-fit rounded-md px-2 py-1 text-xs font-bold ${getDeadlineLabel(tender.endDate).className}`}
+                      >
+                        {getDeadlineLabel(tender.endDate).text}
+                      </span>
+                      {!tender.bidSubmitted && (
+                        <button
+                          type="button"
+                          onClick={() => markSubmitted(tender)}
+                          className="rounded-md bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700"
+                        >
+                          Mark submitted
+                        </button>
+                      )}
+                    </div>
                     <WorkflowTracker currentStage={workflowStageForTender(tender)} />
                   </div>
                 </div>
