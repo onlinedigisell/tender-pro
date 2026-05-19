@@ -2,7 +2,11 @@
 
 import { useEffect, useMemo, useState } from "react";
 import WorkflowTracker from "../components/WorkflowTracker";
-import { workflowStageForTender } from "../../lib/intelligence";
+import {
+  workflowStageForTender,
+  workflowStages,
+  type TenderWorkflowStage,
+} from "../../lib/intelligence";
 
 type Tender = {
   id: string;
@@ -57,13 +61,6 @@ const emptyForm = {
   workDoneCertificate: false,
   completionDate: "",
   notes: "",
-};
-
-const statusStyles: Record<string, string> = {
-  OPEN: "bg-blue-50 text-blue-700",
-  SUBMITTED: "bg-emerald-50 text-emerald-700",
-  WON: "bg-green-50 text-green-700",
-  LOST: "bg-rose-50 text-rose-700",
 };
 
 const bidStyles: Record<string, string> = {
@@ -124,6 +121,83 @@ export default function TendersPage() {
   function resetForm() {
     setEditingId(null);
     setForm(emptyForm);
+  }
+
+  function applyWorkflowStage(stage: TenderWorkflowStage) {
+    const base = {
+      status: "OPEN",
+      bidDecision: "PENDING",
+      documentPrepared: false,
+      bidSubmitted: false,
+      resultStatus: "PENDING",
+      workCompleted: false,
+      workDoneCertificate: false,
+    };
+
+    const stageValues: Record<TenderWorkflowStage, Partial<typeof emptyForm>> = {
+      "Source Identified": base,
+      "RFP Downloaded": { ...base, status: "OPEN" },
+      "Technical Review": { ...base, status: "IN_PROGRESS" },
+      "Eligibility Verified": { ...base, status: "IN_PROGRESS", bidDecision: "BID" },
+      "BOQ Prepared": {
+        ...base,
+        status: "IN_PROGRESS",
+        bidDecision: "BID",
+        documentPrepared: true,
+      },
+      "Management Approval": {
+        ...base,
+        status: "IN_PROGRESS",
+        bidDecision: "BID",
+        documentPrepared: true,
+      },
+      Submitted: {
+        ...base,
+        status: "SUBMITTED",
+        bidDecision: "BID",
+        documentPrepared: true,
+        bidSubmitted: true,
+      },
+      "Result Awaited": {
+        ...base,
+        status: "SUBMITTED",
+        bidDecision: "BID",
+        documentPrepared: true,
+        bidSubmitted: true,
+        resultStatus: "PENDING",
+      },
+      Awarded: {
+        ...base,
+        status: "WON",
+        bidDecision: "BID",
+        documentPrepared: true,
+        bidSubmitted: true,
+        resultStatus: "WON",
+      },
+      Lost: {
+        ...base,
+        status: "LOST",
+        bidDecision: "BID",
+        documentPrepared: true,
+        bidSubmitted: true,
+        resultStatus: "LOST",
+      },
+      "Work Order Issued": {
+        ...base,
+        status: "WON",
+        bidDecision: "BID",
+        documentPrepared: true,
+        bidSubmitted: true,
+        resultStatus: "WON",
+        workCompleted: true,
+        workDoneCertificate: true,
+      },
+    };
+
+    setForm((current) => ({
+      ...current,
+      ...stageValues[stage],
+    }));
   }
 
   function editTender(tender: Tender) {
@@ -272,17 +346,42 @@ export default function TendersPage() {
               </label>
             </div>
 
-            <select
-              className="rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-blue-600"
-              value={form.status}
-              onChange={(e) => setForm({ ...form, status: e.target.value })}
-            >
-              <option value="OPEN">OPEN</option>
-              <option value="SUBMITTED">SUBMITTED</option>
-              <option value="WON">WON</option>
-              <option value="LOST">LOST</option>
-              <option value="COMPLETED">COMPLETED</option>
-            </select>
+            <div className="rounded-md border border-blue-100 bg-blue-50 p-3">
+              <label className="grid gap-1 text-sm font-bold text-blue-950">
+                Workflow stage
+                <select
+                  className="rounded-md border border-blue-200 bg-white px-3 py-2 outline-none focus:border-blue-600"
+                  value={workflowStageForTender(form)}
+                  onChange={(e) => applyWorkflowStage(e.target.value as TenderWorkflowStage)}
+                >
+                  {workflowStages.map((stage) => (
+                    <option key={stage} value={stage}>
+                      {stage}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <p className="mt-2 text-xs leading-5 text-blue-900">
+                This updates tender status, bid decision, document readiness, submission, and result together.
+              </p>
+            </div>
+
+            <label className="grid gap-1 text-sm font-medium text-slate-700">
+              Tender status
+              <select
+                className="rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-blue-600"
+                value={form.status}
+                onChange={(e) => setForm({ ...form, status: e.target.value })}
+              >
+                <option value="OPEN">Open / Draft</option>
+                <option value="IN_PROGRESS">In Review</option>
+                <option value="SUBMITTED">Submitted</option>
+                <option value="WON">Awarded / Won</option>
+                <option value="LOST">Lost</option>
+                <option value="COMPLETED">Completed</option>
+                <option value="ARCHIVED">Archived</option>
+              </select>
+            </label>
 
             <input
               className="rounded-md border border-slate-300 px-3 py-2 outline-none focus:border-blue-600"
