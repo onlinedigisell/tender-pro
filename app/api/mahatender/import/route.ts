@@ -1,5 +1,10 @@
 import { prisma } from "../../../../lib/prisma";
-import { mahatenderImportPayload, parseMahaTenderText } from "../../../../lib/mahatenderParser";
+import {
+  mahatenderImportPayload,
+  parseMahaTenderTables,
+  parseMahaTenderText,
+  type MahaTenderTableRow,
+} from "../../../../lib/mahatenderParser";
 
 export const runtime = "nodejs";
 
@@ -23,6 +28,7 @@ async function readPayload(req: Request) {
     return {
       text: String(formData.get("text") ?? ""),
       pageUrl: String(formData.get("pageUrl") ?? ""),
+      tables: [] as MahaTenderTableRow[][],
       redirect: true,
     };
   }
@@ -31,6 +37,7 @@ async function readPayload(req: Request) {
   return {
     text: String(body.text ?? ""),
     pageUrl: body.pageUrl ? String(body.pageUrl) : "",
+    tables: Array.isArray(body.tables) ? (body.tables as MahaTenderTableRow[][]) : [],
     redirect: false,
   };
 }
@@ -40,7 +47,7 @@ export async function OPTIONS() {
 }
 
 export async function POST(req: Request) {
-  const { text, pageUrl, redirect } = await readPayload(req);
+  const { text, pageUrl, tables, redirect } = await readPayload(req);
 
   if (text.trim().length < 30) {
     if (redirect) {
@@ -55,7 +62,8 @@ export async function POST(req: Request) {
     );
   }
 
-  const parsed = parseMahaTenderText(text);
+  const tableParsed = parseMahaTenderTables(tables, pageUrl);
+  const parsed = tableParsed.length > 0 ? tableParsed : parseMahaTenderText(text);
 
   if (parsed.length === 0) {
     if (redirect) {

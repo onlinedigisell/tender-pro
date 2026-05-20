@@ -30,6 +30,15 @@ async function readPageText(tabId) {
       text: document.body ? document.body.innerText : "",
       pageUrl: location.href,
       title: document.title,
+      tables: Array.from(document.querySelectorAll("table")).map((table) =>
+        Array.from(table.querySelectorAll("tr"))
+          .map((row) =>
+            Array.from(row.querySelectorAll("th,td"))
+              .map((cell) => cell.innerText.replace(/\s+/g, " ").trim())
+              .filter(Boolean),
+          )
+          .filter((cells) => cells.length >= 3),
+      ),
     }),
   });
 
@@ -63,6 +72,7 @@ async function syncVisiblePage() {
         text: page.text,
         pageUrl: page.pageUrl,
         pageTitle: page.title,
+        tables: page.tables || [],
       }),
     });
 

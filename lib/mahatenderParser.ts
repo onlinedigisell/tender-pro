@@ -11,6 +11,8 @@ type ParsedTender = {
   notes: string;
 };
 
+export type MahaTenderTableRow = string[];
+
 const DATE_PATTERN =
   /\b(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})\b|\b(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Sept|Oct|Nov|Dec)[a-z]*\s+(\d{2,4})\b/gi;
 
@@ -63,6 +65,72 @@ function titleFrom(block: string) {
     .filter((line) => !/tender no|date|amount|emd|fee|department|organisation|organization/i.test(line));
 
   return lines.find((line) => line.length > 18)?.slice(0, 260) ?? lines[0]?.slice(0, 260) ?? "";
+}
+
+function isHeaderRow(cells: string[]) {
+  const joined = cells.join(" ").toLowerCase();
+  return /tender.*(?:no|id)|work.*name|closing|department|bid.*submission/.test(joined);
+}
+
+function isLikelyTenderRow(cells: string[]) {
+  const joined = cells.join(" ");
+  return (
+    cells.length >= 4 &&
+    /tender|work|nit|bid|estimated|closing|open|submission|department|organisation|organization/i.test(joined) &&
+    new RegExp(DATE_PATTERN.source, "i").test(joined)
+  );
+}
+
+function bestTitleCell(cells: string[]) {
+  const candidates = cells
+    .map((cell) => cell.trim())
+    .filter((cell) => cell.length > 18)
+    .filter((cell) => !/view|download|corrigendum|bid|date|amount|emd|fee|department|organisation|organization|closing|opening/i.test(cell));
+
+  return candidates.sort((a, b) => b.length - a.length)[0]?.slice(0, 260) ?? "";
+}
+
+function parseRow(cells: string[], pageUrl = ""): ParsedTender | null {
+  if (isHeaderRow(cells) || !isLikelyTenderRow(cells)) return null;
+
+  const block = cells.join("\n");
+  const dates = Array.from(block.matchAll(DATE_PATTERN)).map((match) => match[0]);
+  const title = bestTitleCell(cells) || titleFrom(block);
+  if (!title) return null;
+
+  const department =
+    cells.find((cell) => /department|organisation|organization|authority|client/i.test(cell)) ??
+    cells.find((cell) => /corporation|department|pwd|zp|municipal|irrigation|maharashtra/i.test(cell)) ??
+    "MahaTender";
+  const location =
+    cells.find((cell) => /district|jalna|pune|mumbai|nashik|nagpur|aurangabad|chhatrapati|maharashtra/i.test(cell)) ??
+    "Maharashtra";
+  const valueCell = cells.find((cell) => /(?:rs\.?|inr|\u20b9)\s*[\d,]+|[\d,]+(?:\.\d+)?\s*(?:lakh|cr|crore)/i.test(cell));
+  const link = block.match(/https?:\/\/\S+/i)?.[0] ?? pageUrl;
+
+  return {
+    title,
+    department: department.slice(0, 180),
+    location: location.slice(0, 120),
+    value: valueCell ? moneyFrom(valueCell).replace(/,/g, "") : "",
+    startDate: normalizeDate(dates[0]) || todayInput(),
+    endDate: normalizeDate(dates[dates.length - 1]) || todayInput(),
+    onlineLink: link,
+    notes: `Imported from MahaTender table row.\n\n${block.slice(0, 1800)}`,
+  };
+}
+
+export function parseMahaTenderTables(tables: MahaTenderTableRow[][] = [], pageUrl = "") {
+  const rows = tables.flat();
+  const tenders = rows.map((row) => parseRow(row, pageUrl)).filter(Boolean) as ParsedTender[];
+  const seen = new Set<string>();
+
+  return tenders.filter((tender) => {
+    const key = `${tender.title}|${tender.endDate}|${tender.department}`;
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
 }
 
 function splitTenderBlocks(text: string) {
