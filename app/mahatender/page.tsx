@@ -11,12 +11,23 @@ export default function MahaTenderPage() {
 
   useEffect(() => {
     setOrigin(window.location.origin);
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("sync") === "done") {
+      setMessage(
+        `MahaTender sync finished. Imported ${params.get("imported") ?? 0}, created ${
+          params.get("created") ?? 0
+        }, updated ${params.get("updated") ?? 0}.`,
+      );
+    }
+    if (params.get("sync") === "error") {
+      setMessage(params.get("message") || "MahaTender sync did not find tender records.");
+    }
   }, []);
 
   const bookmarklet = useMemo(() => {
     if (!origin) return "";
     const endpoint = `${origin}/api/mahatender/import`;
-    return `javascript:(async()=>{try{const text=document.body.innerText;const pageUrl=location.href;const res=await fetch(${JSON.stringify(endpoint)},{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({text,pageUrl})});const data=await res.json();alert(data.error||("Tender Pro sync complete: "+data.imported+" tender(s). Created: "+data.created+", Updated: "+data.updated));}catch(e){alert("Tender Pro sync failed. Keep Tender Pro open and try again.");}})();`;
+    return `javascript:(()=>{try{var d=document,b=d.body,t=d.createElement("textarea"),u=d.createElement("input"),f=d.createElement("form");f.method="POST";f.action=${JSON.stringify(endpoint)};f.target="_blank";t.name="text";t.value=b?b.innerText:"";u.name="pageUrl";u.value=location.href;f.style.display="none";f.appendChild(t);f.appendChild(u);d.body.appendChild(f);f.submit();setTimeout(()=>f.remove(),3000);}catch(e){alert("Tender Pro Sync could not start. Open MahaTender tender page and try again.");}})();`;
   }, [origin]);
 
   async function copyBookmarklet() {
@@ -84,6 +95,10 @@ export default function MahaTenderPage() {
               5. Click the bookmark: Tender Pro Sync.
             </li>
           </ol>
+          <p className="mt-4 rounded-md border border-amber-100 bg-amber-50 p-3 text-sm font-bold text-amber-800">
+            After clicking the bookmark on MahaTender, a new Tender Pro result tab should open. If no
+            new tab opens, your browser blocked pop-ups or the bookmark was not installed correctly.
+          </p>
           {bookmarklet && (
             <a
               href={bookmarklet}
