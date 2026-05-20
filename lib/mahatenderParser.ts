@@ -133,6 +133,71 @@ export function parseMahaTenderTables(tables: MahaTenderTableRow[][] = [], pageU
   });
 }
 
+export function parseMahaTenderBidders(tables: MahaTenderTableRow[][] = [], text = "") {
+  const rows = tables.flat();
+  const bidders = rows
+    .map((cells) => {
+      const joined = cells.join(" ");
+      if (!/bidder|contractor|agency|firm|company|l1|l2|quoted|amount|rank|winner|successful/i.test(joined)) {
+        return null;
+      }
+
+      const bidderName =
+        cells.find((cell) => /pvt|ltd|limited|construction|contractor|infra|engineer|enterprise|agency|company/i.test(cell)) ??
+        cells.find((cell) => cell.length > 4 && !/bidder|amount|rank|quoted|l1|l2|status/i.test(cell)) ??
+        "";
+      if (!bidderName || /bidder|contractor|agency|firm|company/i.test(bidderName.toLowerCase())) return null;
+
+      const amountCell = cells.find((cell) => /(?:rs\.?|inr|\u20b9)\s*[\d,]+|[\d,]+(?:\.\d+)?\s*(?:lakh|cr|crore)/i.test(cell));
+      const rankCell = cells.find((cell) => /\bL\s*[1-9]\b|\brank\s*[1-9]\b/i.test(cell));
+      const rankMatch = rankCell?.match(/[1-9]/)?.[0];
+      const percentCell = cells.find((cell) => /%|below|above/i.test(cell));
+      const percentMatch = percentCell?.match(/-?\d+(?:\.\d+)?/)?.[0];
+
+      return {
+        bidderName: bidderName.slice(0, 180),
+        quotedAmount: amountCell ? moneyFrom(amountCell).replace(/,/g, "") : "",
+        percentBelow: percentMatch ?? "",
+        rank: rankMatch ?? "",
+        isWinner: /winner|successful|awarded|l\s*1/i.test(joined),
+        remarks: `Synced from MahaTender bidder/result table.\n\n${joined.slice(0, 900)}`,
+      };
+    })
+    .filter(Boolean) as {
+      bidderName: string;
+      quotedAmount: string;
+      percentBelow: string;
+      rank: string;
+      isWinner: boolean;
+      remarks: string;
+    }[];
+
+  const seen = new Set<string>();
+  return bidders.filter((bidder) => {
+    const key = bidder.bidderName.toLowerCase();
+    if (seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+}
+
+export function inferTenderPortalStatus(text: string) {
+  const value = text.toLowerCase();
+  if (/awarded|work order|successful bidder|loa issued|letter of acceptance/.test(value)) {
+    return { status: "WON", resultStatus: "WON" };
+  }
+  if (/financial bid opening|financial evaluation|price bid opened/.test(value)) {
+    return { status: "SUBMITTED", resultStatus: "PENDING" };
+  }
+  if (/technical bid opening|technical evaluation|technical bid opened/.test(value)) {
+    return { status: "SUBMITTED", resultStatus: "PENDING" };
+  }
+  if (/bid submitted|submitted successfully|submission completed/.test(value)) {
+    return { status: "SUBMITTED", resultStatus: "PENDING" };
+  }
+  return {};
+}
+
 function splitTenderBlocks(text: string) {
   const normalized = text.replace(/\r/g, "\n").replace(/\n{3,}/g, "\n\n").trim();
   const byBlank = normalized.split(/\n\s*\n/).filter((block) => /tender|work|nit|bid/i.test(block));

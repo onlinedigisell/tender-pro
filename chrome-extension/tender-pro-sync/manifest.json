@@ -3,7 +3,7 @@
   "name": "Tender Pro MahaTender Sync",
   "version": "1.0.0",
   "description": "Sync visible MahaTender tender data into Tender Pro after manual login and CAPTCHA.",
-  "permissions": ["activeTab", "scripting", "storage"],
+  "permissions": ["activeTab", "scripting", "storage", "tabs"],
   "host_permissions": [
     "https://*.mahatenders.gov.in/*",
     "https://mahatenders.gov.in/*",

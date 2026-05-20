@@ -22,4 +22,7 @@ This extension syncs the visible MahaTender page into Tender Pro after the user 
 6. Click **Sync visible page**.
 7. Open Tender Pro → Submission Tracker to see created/updated records.
 
+Use **Deep scan visible tender links** when the list page has links to separate tender detail pages.
+The extension will open those links one by one in background tabs and sync each visible detail page.
+
 The extension does not store MahaTender username, password, CAPTCHA, or OTP.

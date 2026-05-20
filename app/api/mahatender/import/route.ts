@@ -1,6 +1,8 @@
 import { prisma } from "../../../../lib/prisma";
 import {
+  inferTenderPortalStatus,
   mahatenderImportPayload,
+  parseMahaTenderBidders,
   parseMahaTenderTables,
   parseMahaTenderText,
   type MahaTenderTableRow,
@@ -64,6 +66,7 @@ export async function POST(req: Request) {
 
   const tableParsed = parseMahaTenderTables(tables, pageUrl);
   const parsed = tableParsed.length > 0 ? tableParsed : parseMahaTenderText(text);
+  const portalStatus = inferTenderPortalStatus(text);
 
   if (parsed.length === 0) {
     if (redirect) {
@@ -79,20 +82,22 @@ export async function POST(req: Request) {
   }
 
   const synced = [];
+  const syncedTenderIds: string[] = [];
   let created = 0;
   let updated = 0;
+  let biddersSynced = 0;
 
   for (const tender of parsed.slice(0, 25)) {
     const data = mahatenderImportPayload({
       ...tender,
-      onlineLink: tender.onlineLink || pageUrl,
+      onlineLink: tender.onlineLink,
       notes: `${tender.notes}\n\nSynced page: ${pageUrl}`,
     });
 
     const existing = await prisma.tender.findFirst({
       where: {
         OR: [
-          data.onlineLink ? { onlineLink: data.onlineLink } : undefined,
+        data.onlineLink ? { onlineLink: data.onlineLink } : undefined,
           {
             title: data.title,
             department: data.department,
@@ -114,14 +119,56 @@ export async function POST(req: Request) {
           endDate: data.endDate,
           onlineLink: data.onlineLink,
           notes: data.notes,
+          ...portalStatus,
         },
       });
       synced.push(saved);
+      syncedTenderIds.push(saved.id);
       updated += 1;
     } else {
-      const saved = await prisma.tender.create({ data });
+      const saved = await prisma.tender.create({ data: { ...data, ...portalStatus } });
       synced.push(saved);
+      syncedTenderIds.push(saved.id);
       created += 1;
+    }
+  }
+
+  const bidderRows = parseMahaTenderBidders(tables, text);
+  if (bidderRows.length > 0 && syncedTenderIds.length === 1) {
+    const tenderId = syncedTenderIds[0];
+    for (const bidder of bidderRows.slice(0, 40)) {
+      const existingBidder = await prisma.bidder.findFirst({
+        where: {
+          tenderId,
+          bidderName: { equals: bidder.bidderName, mode: "insensitive" },
+        },
+      });
+
+      if (existingBidder) {
+        await prisma.bidder.update({
+          where: { id: existingBidder.id },
+          data: {
+            quotedAmount: bidder.quotedAmount ? Number(bidder.quotedAmount) : null,
+            percentBelow: bidder.percentBelow ? Number(bidder.percentBelow) : null,
+            rank: bidder.rank ? Number(bidder.rank) : null,
+            isWinner: bidder.isWinner,
+            remarks: bidder.remarks,
+          },
+        });
+      } else {
+        await prisma.bidder.create({
+          data: {
+            tenderId,
+            bidderName: bidder.bidderName,
+            quotedAmount: bidder.quotedAmount ? Number(bidder.quotedAmount) : null,
+            percentBelow: bidder.percentBelow ? Number(bidder.percentBelow) : null,
+            rank: bidder.rank ? Number(bidder.rank) : null,
+            isWinner: bidder.isWinner,
+            remarks: bidder.remarks,
+          },
+        });
+      }
+      biddersSynced += 1;
     }
   }
 
@@ -131,11 +178,12 @@ export async function POST(req: Request) {
       imported: synced.length,
       created,
       updated,
+      biddersSynced,
     });
   }
 
   return Response.json(
-    { imported: synced.length, created, updated, tenders: synced },
+    { imported: synced.length, created, updated, biddersSynced, tenders: synced },
     { headers: corsHeaders },
   );
 }
