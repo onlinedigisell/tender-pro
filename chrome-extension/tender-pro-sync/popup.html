@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Tender Pro Sync</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <main>
+      <div class="brand">
+        <div class="logo">TP</div>
+        <div>
+          <h1>Tender Pro Sync</h1>
+          <p>MahaTender to Tender Pro</p>
+        </div>
+      </div>
+
+      <section class="panel">
+        <label>
+          Tender Pro API URL
+          <input id="endpoint" type="url" />
+        </label>
+        <button id="save">Save URL</button>
+      </section>
+
+      <section class="panel">
+        <p class="hint">
+          Login to MahaTender, fill CAPTCHA, open current/recent tender list or tender detail page,
+          then click Sync.
+        </p>
+        <button id="sync" class="primary">Sync visible page</button>
+        <p id="status" class="status">Ready.</p>
+      </section>
+    </main>
+    <script src="popup.js"></script>
+  </body>
+</html>

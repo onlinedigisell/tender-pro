@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 48 48">
+  <rect width="48" height="48" rx="12" fill="#2563eb"/>
+  <path d="M8 8h32v32H8z" fill="#14b8a6" opacity=".22"/>
+  <text x="24" y="31" text-anchor="middle" font-size="18" font-family="Arial" font-weight="900" fill="#fff">TP</text>
+</svg>
