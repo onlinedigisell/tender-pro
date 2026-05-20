@@ -10,6 +10,7 @@ export const navItems = [
   { href: "/bidders", label: "Competitor Insights", detail: "Market view" },
   { href: "/reports", label: "Executive Reports", detail: "Performance" },
   { href: "/sources", label: "Tender Discovery", detail: "Live sources" },
+  { href: "/mahatender", label: "MahaTender Import", detail: "Assisted" },
   { href: "/activities", label: "Bid Readiness", detail: "Daily work" },
   { href: "/notifications", label: "Smart Alerts", detail: "Reminders" },
 ];
