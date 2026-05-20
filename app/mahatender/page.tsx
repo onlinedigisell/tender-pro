@@ -27,7 +27,7 @@ export default function MahaTenderPage() {
   const bookmarklet = useMemo(() => {
     if (!origin) return "";
     const endpoint = `${origin}/api/mahatender/import`;
-    return `javascript:(()=>{try{var d=document,b=d.body,t=d.createElement("textarea"),u=d.createElement("input"),f=d.createElement("form");f.method="POST";f.action=${JSON.stringify(endpoint)};f.target="_blank";t.name="text";t.value=b?b.innerText:"";u.name="pageUrl";u.value=location.href;f.style.display="none";f.appendChild(t);f.appendChild(u);d.body.appendChild(f);f.submit();setTimeout(()=>f.remove(),3000);}catch(e){alert("Tender Pro Sync could not start. Open MahaTender tender page and try again.");}})();`;
+    return `javascript:(()=>{try{var d=document,b=d.body,o=d.createElement("div"),t=d.createElement("textarea"),u=d.createElement("input"),f=d.createElement("form");o.textContent="Tender Pro Sync running...";o.style.cssText="position:fixed;top:12px;left:12px;z-index:2147483647;background:#075985;color:white;padding:12px 16px;border-radius:8px;font:700 14px Arial";d.body.appendChild(o);f.method="POST";f.action=${JSON.stringify(endpoint)};f.target="_self";t.name="text";t.value=b?b.innerText:"";u.name="pageUrl";u.value=location.href;f.style.display="none";f.appendChild(t);f.appendChild(u);d.body.appendChild(f);f.submit();}catch(e){alert("Tender Pro Sync could not start. Open MahaTender tender page and try again.");}})();`;
   }, [origin]);
 
   async function copyBookmarklet() {
@@ -71,7 +71,8 @@ export default function MahaTenderPage() {
         <p className="mt-3 max-w-4xl text-base leading-7 text-slate-600">
           Tender Pro cannot read another logged-in website tab directly, so this page gives you a
           small browser connector. After you login to MahaTender and fill CAPTCHA, click the
-          connector bookmark. It will read the visible MahaTender page and update Submission Tracker.
+          connector bookmark. It will read the visible MahaTender page, then move that tab to Tender
+          Pro with the sync result.
         </p>
       </section>
 
@@ -92,12 +93,13 @@ export default function MahaTenderPage() {
               4. Open current/recent tender list or tender detail page.
             </li>
             <li className="rounded-md bg-slate-50 p-3">
-              5. Click the bookmark: Tender Pro Sync.
+              5. Click the bookmark: Tender Pro Sync. The same tab will open Tender Pro result.
             </li>
           </ol>
           <p className="mt-4 rounded-md border border-amber-100 bg-amber-50 p-3 text-sm font-bold text-amber-800">
-            After clicking the bookmark on MahaTender, a new Tender Pro result tab should open. If no
-            new tab opens, your browser blocked pop-ups or the bookmark was not installed correctly.
+            After clicking the bookmark on MahaTender, the same tab should show “Tender Pro Sync
+            running...” and then open Tender Pro result. If nothing changes, the bookmark was not
+            installed correctly.
           </p>
           {bookmarklet && (
             <a
