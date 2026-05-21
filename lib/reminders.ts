@@ -19,7 +19,6 @@ function indiaDateAsUtcMidnight(offsetDays = 0) {
 
 export async function runTenderReminderCheck() {
   const today = indiaDateAsUtcMidnight();
-  const fiveDaysLater = indiaDateAsUtcMidnight(5);
 
   const tenders = await prisma.tender.findMany({
     where: {
@@ -27,7 +26,6 @@ export async function runTenderReminderCheck() {
       bidSubmitted: false,
       endDate: {
         gte: today,
-        lte: fiveDaysLater,
       },
     },
     orderBy: { endDate: "asc" },
