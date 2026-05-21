@@ -19,14 +19,15 @@ function indiaDateAsUtcMidnight(offsetDays = 0) {
 
 export async function runTenderReminderCheck() {
   const today = indiaDateAsUtcMidnight();
-  const sevenDaysLater = indiaDateAsUtcMidnight(7);
+  const fiveDaysLater = indiaDateAsUtcMidnight(5);
 
   const tenders = await prisma.tender.findMany({
     where: {
-      status: "OPEN",
+      status: { in: ["OPEN", "IN_PROGRESS"] },
+      bidSubmitted: false,
       endDate: {
         gte: today,
-        lte: sevenDaysLater,
+        lte: fiveDaysLater,
       },
     },
     orderBy: { endDate: "asc" },
@@ -36,7 +37,12 @@ export async function runTenderReminderCheck() {
 
   for (const tender of tenders) {
     const closingDate = tender.endDate.toLocaleDateString("en-IN");
-    const message = `Tender closing soon: ${tender.title} closes on ${closingDate}`;
+    const closing = indiaDateAsUtcMidnight();
+    closing.setUTCFullYear(tender.endDate.getFullYear(), tender.endDate.getMonth(), tender.endDate.getDate());
+    const daysLeft = Math.round((closing.getTime() - today.getTime()) / 86400000);
+    const dayLabel =
+      daysLeft === 0 ? "closes today" : `${daysLeft} day${daysLeft === 1 ? "" : "s"} left`;
+    const message = `Tender deadline alert: ${tender.title} - ${dayLabel} (${closingDate})`;
 
     const existing = await prisma.notification.findFirst({
       where: { message },
@@ -49,7 +55,7 @@ export async function runTenderReminderCheck() {
     });
 
     await sendPushNotification({
-      title: "Tender closing soon",
+      title: `Tender deadline: ${dayLabel}`,
       body: `${tender.title} closes on ${closingDate}`,
       url: "/tenders",
     });
