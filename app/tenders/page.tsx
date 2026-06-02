@@ -533,28 +533,22 @@ export default function TendersPage() {
             />
           </div>
 
-          <div className="overflow-x-auto rounded-md border border-slate-200">
-            <div className="hidden min-w-[980px] grid-cols-[1.4fr_0.9fr_90px_90px_110px_110px_120px] gap-4 bg-slate-50 px-4 py-3 text-xs font-bold uppercase tracking-wide text-slate-500 lg:grid">
-              <span>Tender</span>
-              <span>Department</span>
-              <span>Bid</span>
-              <span>Docs</span>
-              <span>Quoted</span>
-              <span>Closing</span>
-              <span>Actions</span>
-            </div>
-
+          <div className="grid gap-3">
             {filteredTenders.length === 0 ? (
-              <p className="p-6 text-center text-sm text-slate-500">No tenders found.</p>
+              <p className="rounded-md border border-dashed border-slate-300 p-6 text-center text-sm text-slate-500">
+                No tenders found.
+              </p>
             ) : (
               filteredTenders.map((tender) => (
-                <div
+                <article
                   key={tender.id}
-                  className="grid gap-2 border-t border-slate-200 px-4 py-4 lg:min-w-[980px] lg:grid-cols-[1.4fr_0.9fr_90px_90px_110px_110px_120px] lg:items-center lg:gap-4"
+                  className="min-w-0 rounded-md border border-slate-200 p-4 shadow-sm"
                 >
-                  <div>
-                    <p className="font-semibold">{tender.title}</p>
-                    <p className="mt-1 text-sm text-slate-500">{tender.location}</p>
+                  <div className="grid min-w-0 gap-4 xl:grid-cols-[minmax(0,1fr)_260px] xl:items-start">
+                    <div className="min-w-0">
+                      <p className="break-words text-base font-bold text-slate-950">{tender.title}</p>
+                      <p className="mt-1 break-words text-sm text-slate-500">{tender.location}</p>
+                      <p className="mt-1 break-words text-sm text-slate-700">{tender.department}</p>
                     {tender._count?.bidders ? (
                       <p className="mt-1 text-sm font-medium text-blue-700">
                         {tender._count.bidders} bidder(s)
@@ -568,9 +562,6 @@ export default function TendersPage() {
                         Estimated: {Number(tender.value).toLocaleString("en-IN")}
                       </p>
                     ) : null}
-                    <div className="mt-4 lg:hidden">
-                      <WorkflowTracker currentStage={workflowStageForTender(tender)} />
-                    </div>
                     <div className="mt-4 flex flex-wrap gap-2">
                       <button
                         type="button"
@@ -586,57 +577,53 @@ export default function TendersPage() {
                       >
                         Mark submitted
                       </button>
+                      <button
+                        type="button"
+                        onClick={() => deleteTender(tender)}
+                        className="rounded-md border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-50"
+                      >
+                        Delete
+                      </button>
                     </div>
                   </div>
-                  <p className="text-sm text-slate-700">{tender.department}</p>
-                  <span className={`w-fit rounded-md px-2 py-1 text-xs font-bold ${bidStyles[tender.bidDecision] ?? "bg-slate-100 text-slate-700"}`}>
-                    {tender.bidDecision}
-                  </span>
-                  <span className={`w-fit rounded-md px-2 py-1 text-xs font-bold ${tender.documentPrepared ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
-                    {tender.documentPrepared ? "Ready" : "Pending"}
-                  </span>
-                  <p className="text-sm font-medium">
-                    {tender.quotedRate ? Number(tender.quotedRate).toLocaleString("en-IN") : "-"}
-                  </p>
-                  <p className="text-sm font-medium">
-                    {new Date(tender.endDate).toLocaleDateString("en-IN")}
-                  </p>
-                  <div className="hidden gap-2 lg:flex">
-                    <button
-                      type="button"
-                      onClick={() => editTender(tender)}
-                      className="rounded-md border border-slate-300 px-3 py-2 text-sm font-semibold hover:bg-slate-50"
-                    >
-                      Edit
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => deleteTender(tender)}
-                      className="rounded-md border border-rose-200 px-3 py-2 text-sm font-semibold text-rose-700 hover:bg-rose-50"
-                    >
-                      Delete
-                    </button>
-                  </div>
-                  <div className="hidden lg:col-span-7 lg:block">
-                    <div className="mb-2 flex items-center justify-between gap-3">
+
+                    <div className="grid gap-3 rounded-md bg-slate-50 p-3 text-sm sm:grid-cols-2 xl:grid-cols-1">
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Bid</p>
+                        <span className={`mt-1 inline-flex w-fit rounded-md px-2 py-1 text-xs font-bold ${bidStyles[tender.bidDecision] ?? "bg-slate-100 text-slate-700"}`}>
+                          {tender.bidDecision}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Documents</p>
+                        <span className={`mt-1 inline-flex w-fit rounded-md px-2 py-1 text-xs font-bold ${tender.documentPrepared ? "bg-emerald-50 text-emerald-700" : "bg-amber-50 text-amber-700"}`}>
+                          {tender.documentPrepared ? "Ready" : "Pending"}
+                        </span>
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Quoted</p>
+                        <p className="mt-1 font-semibold">
+                          {tender.quotedRate ? Number(tender.quotedRate).toLocaleString("en-IN") : "-"}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-xs font-bold uppercase tracking-wide text-slate-500">Closing</p>
+                        <p className="mt-1 font-semibold">
+                          {new Date(tender.endDate).toLocaleDateString("en-IN")}
+                        </p>
+                      </div>
                       <span
                         className={`w-fit rounded-md px-2 py-1 text-xs font-bold ${getDeadlineLabel(tender.endDate).className}`}
                       >
                         {getDeadlineLabel(tender.endDate).text}
                       </span>
-                      {!tender.bidSubmitted && (
-                        <button
-                          type="button"
-                          onClick={() => markSubmitted(tender)}
-                          className="rounded-md bg-emerald-600 px-3 py-2 text-xs font-bold text-white hover:bg-emerald-700"
-                        >
-                          Mark submitted
-                        </button>
-                      )}
                     </div>
+                  </div>
+
+                  <div className="mt-4">
                     <WorkflowTracker currentStage={workflowStageForTender(tender)} />
                   </div>
-                </div>
+                </article>
               ))
             )}
           </div>
